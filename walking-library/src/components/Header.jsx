@@ -1,8 +1,10 @@
-export default function Header() {
+export default function Header({ onWriteClick }) {
   return (
-    <>
-      <h1 style={{ color: "#333", marginBottom: "10px" }}>📚 걷기가 서재 : 작가의 산책</h1>
-      <hr style={{ border: "1px solid #ddd", marginBottom: "20px" }} />
-    </>
+    <header id="app-header" className="app-header">
+      <h1 id="app-title">📚 걷기가 서재 : 작가의 산책</h1>
+      <button type="button" className="header-action btn btn-primary" onClick={onWriteClick}>
+        책 작성하기
+      </button>
+    </header>
   );
 }
