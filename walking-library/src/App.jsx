@@ -244,6 +244,13 @@ export default function App() {
 
       <BookRecommend latestBook={latestBook}/>
 
+      <BookList
+        books={books}
+        selectedBook={selectedBook}
+        onSelectBook={handleSelectBook}
+        horizontal={true}
+      />
+
       <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
         <BookList 
           books={filteredBooks} 

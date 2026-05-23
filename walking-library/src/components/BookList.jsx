@@ -1,7 +1,17 @@
-export default function BookList({ books, selectedBook, onSelectBook }) {
+export default function BookList({ books, selectedBook, onSelectBook, horizontal }) {
   return (
-    <section style={{ flex: 1 }}>
-      <h3 style={{ marginTop: 0 }}>📖 나의 도서 목록 ({books.length}권)</h3>
+    <section style={{ flex: horizontal ? "none" : 1 }}>
+      <h3 style={{ marginTop: 0 }}>
+        {horizontal ? "❤️ 인기 도서 ❤️" : `📖 나의 도서 목록 (${books.length}권)`}
+      </h3>
+
+      <div style={{
+        display: "flex",
+        flexDirection: horizontal ? "row" : "column",
+        overflow: horizontal ? "auto" : "visible",
+        gap: "10px"
+      }}>
+
       {books.map((book) => {
         const isCurrent = selectedBook?.id === book.id;
         
@@ -13,6 +23,7 @@ export default function BookList({ books, selectedBook, onSelectBook }) {
               padding: "12px",
               border: "1px solid #ddd",
               marginBottom: "10px",
+              minWidth: horizontal ? "150px" : "auto",
               cursor: "pointer",
               borderRadius: "6px",
               transition: "background 0.2s",
@@ -25,6 +36,7 @@ export default function BookList({ books, selectedBook, onSelectBook }) {
           </div>
         );
       })}
+      </div>
     </section>
   );
 }
