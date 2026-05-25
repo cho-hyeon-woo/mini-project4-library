@@ -51,13 +51,17 @@ export default function App() {
   const abortControllerRef = useRef(null);
 
   const fetchBooks = async () => {
-    const res = await fetch(dbAddress);
-    const data = await res.json();
-    setBooks(data);
-    
-    if (data.length > 0 && !randomBook) {
-      const randomIndex = Math.floor(Math.random() * data.length);
-      setRandomBook(data[randomIndex]);
+    try {
+      const res = await fetch(dbAddress);
+      const data = await res.json();
+      setBooks(data);
+      
+      if (data.length > 0 && !randomBook) {
+        const randomIndex = Math.floor(Math.random() * data.length);
+        setRandomBook(data[randomIndex]);
+      }
+    } catch (err) {
+      console.error("데이터 로딩 실패:", err);
     }
   };
 
@@ -68,7 +72,6 @@ export default function App() {
     book.author.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 1단계: 미리보기 데이터 조립 (AI 찌르기 또는 로컬 파일 매칭)
   const handleInitiatePreview = async () => {
     if (!title.trim() || !author.trim() || !content.trim()) {
       alert("모든 필수 항목을 기입해 주세요.");
@@ -77,7 +80,7 @@ export default function App() {
 
     if (!apiKey.trim()) {
       if (localImageBase64) {
-        setTempPreviewImage(localImageBase64); // 로컬 파일 주소를 미리보기로 승격
+        setTempPreviewImage(localImageBase64);
       } else {
         alert("AI 표지를 생성하기 위한 OpenAI API Key를 입력하거나,\n좌측 하단에서 직접 업로드할 이미지 파일을 선택해 주세요!");
       }
@@ -106,7 +109,7 @@ export default function App() {
       setTempPreviewImage(`data:image/${outputFormat};base64,${b64Json}`);
     } catch (err) {
       if (err.name === 'AbortError') {
-        console.log("생성 취소됨");
+        console.log("이미지 생성 취소됨");
       } else {
         alert(`에러: ${err.message}`);
       }
@@ -120,35 +123,38 @@ export default function App() {
     if (abortControllerRef.current) abortControllerRef.current.abort();
   };
 
-  // 2단계: 유저 검토완료 후 최종 서버 적재
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
     const payload = {
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
       coverImageUrl: tempPreviewImage,
-      createdAt: nowISO, updatedAt: nowISO
+      updatedAt: nowISO
     };
 
-    if (isEditing) {
-      await fetch(`${dbAddress}/${selectedBook.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...selectedBook, ...payload }),
-      });
-      setIsEditing(false);
-    } else {
-      await fetch(dbAddress, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    }
+    try {
+      if (isEditing) {
+        await fetch(`${dbAddress}/${selectedBook.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...selectedBook, ...payload }),
+        });
+        setIsEditing(false);
+      } else {
+        await fetch(dbAddress, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, createdAt: nowISO }),
+        });
+      }
 
-    setTitle(""); setAuthor(""); setContent(""); setSelectedBook(null);
-    setTempPreviewImage(""); setLocalImageBase64(""); handleCloseDetail();
-    fetchBooks();
-    setCurrentMenu("home");
+      setTitle(""); setAuthor(""); setContent(""); setSelectedBook(null);
+      setTempPreviewImage(""); setLocalImageBase64(""); handleCloseDetail();
+      fetchBooks();
+      setCurrentMenu("home");
+    } catch (err) {
+      alert("도서 저장에 실패했습니다.");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -162,7 +168,9 @@ export default function App() {
 
   const startEdit = () => {
     setTitle(selectedBook.title); setAuthor(selectedBook.author); setContent(selectedBook.content);
-    setIsEditing(true); setCurrentMenu("register");
+    setBookGenre(selectedBook.genre || "실용서적"); setCoverStyle(selectedBook.style || "미니멀");
+    setTempPreviewImage(selectedBook.coverImageUrl || "");
+    setIsEditing(true); setCurrentMenu("register"); // 🎯 도서 등록하기 탭 활성화 연동 완료
   };
 
   const handleOpenDetail = (book, source) => {
@@ -182,13 +190,11 @@ export default function App() {
 
   return (
     <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
-      <Header currentMenu={currentMenu} onMenuChange={setCurrentMenu} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
       {/* 🏠 홈 화면 */}
       {currentMenu === "home" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
-          
-          {/* 이 달의 추천 도서 */}
           {randomBook && (
             <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
               <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
@@ -198,7 +204,7 @@ export default function App() {
                 </div>
                 <div style={{ flex: 1, textAlign: "center" }}>
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
-                  <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span></p>
+                  <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>저자</span></p>
                   <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
                   <span style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
                 </div>
@@ -211,7 +217,6 @@ export default function App() {
             </section>
           )}
 
-          {/* 📖 도서 목록 그리드 */}
           <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
             <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
@@ -238,11 +243,10 @@ export default function App() {
               )}
             </div>
           </section>
-
         </div>
       )}
 
-      {/* ✍️ 도서 등록 대시보드 (오타 전면 수정 완료) */}
+      {/* ✍️ 도서 등록 대시보드 */}
       {currentMenu === "register" && (
         <BookForm 
           title={title} setTitle={setTitle} author={author} setAuthor={setAuthor} content={content} setContent={setContent}
@@ -250,34 +254,29 @@ export default function App() {
           imageSize={imageSize} setImageSize={setImageSize} imageQuality={imageQuality} setImageQuality={setImageQuality}
           outputFormat={outputFormat} setOutputFormat={setOutputFormat} bookGenre={bookGenre} setBookGenre={setBookGenre}
           coverStyle={coverStyle} setCoverStyle={setCoverStyle}
-          isEditing={isEditing} 
-          onSave={handleInitiatePreview} // 🎯 오타 수정 완료!
-          onFinalSave={handleFinalSave}           
-          onCancel={() => { setIsEditing(false); setTempPreviewImage(""); setLocalImageBase64(""); setCurrentMenu("home"); }}
-          isGenerating={isGeneratingCover}
-          onCancelGeneration={handleCancelGeneration} 
-          tempPreviewImage={tempPreviewImage}         
-          setTempPreviewImage={setTempPreviewImage}   
+          isEditing={isEditing} onSave={handleInitiatePreview} onFinalSave={handleFinalSave}           
+          onCancel={() => { setIsEditing(false); setTitle(""); setAuthor(""); setContent(""); setTempPreviewImage(""); setLocalImageBase64(""); setCurrentMenu("home"); }}
+          isGenerating={isGeneratingCover} onCancelGeneration={handleCancelGeneration} 
+          tempPreviewImage={tempPreviewImage} setTempPreviewImage={setTempPreviewImage}   
           localImageBase64={localImageBase64} setLocalImageBase64={setLocalImageBase64}
         />
       )}
 
-      {/* 👤 마이 페이지 화면 */}
+      {/* 👤 마이 페이지 화면 (미구현 상단 탭 텍스트 완벽 제거 및 2단 독립 뷰바 배치) */}
       {currentMenu === "mypage" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
-          <section style={{ width: "100%", boxSizing: "border-box", padding: "20px", border: "1px solid #ccc", borderRadius: "8px", background: "#f9f9f9" }}>
-            <h3 style={{ marginTop: 0 }}>👤 마이 페이지 (작가 전용 관리실)</h3>
-            <p style={{ color: "#666", fontSize: "14px" }}>이곳에서 본인이 등록한 도서의 상세 내용을 확인하고, <strong>수정/삭제 및 AI 표지 생성</strong>을 진행할 수 있습니다.</p>
-            {!selectedBook && <p style={{ color: "#999", fontStyle: "italic", marginTop: "15px" }}>👉 관리할 도서를 확인하려면 '홈' 탭에서 먼저 책을 선택하고 마이페이지로 오거나, 아래 목록을 연동해 주세요.</p>}
-          </section>
-
-          {selectedBook && (
-            <BookDetail 
-              selectedBook={selectedBook} onStartEdit={startEdit} onDelete={handleDelete} onClose={handleCloseDetail} isReadOnly={false} 
-              apiKey={apiKey} setApiKey={setApiKey} imageModel={imageModel} setImageModel={setImageModel} imageSize={imageSize} setImageSize={setImageSize} imageQuality={imageQuality} setImageQuality={setImageQuality} outputFormat={outputFormat} setOutputFormat={setOutputFormat} bookGenre={bookGenre} setBookGenre={setBookGenre} coverStyle={coverStyle} setCoverStyle={setCoverStyle}
-              isGeneratingCover={isGeneratingCover} coverError={""} onGenerateCover={handleInitiatePreview}
-            />
-          )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
+          <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold" }}>👤 마이 페이지 (작가 전용 관리실)</h3>
+          
+          <BookDetail 
+            selectedBook={selectedBook} 
+            onStartEdit={startEdit} 
+            onDelete={handleDelete} 
+            onClose={handleCloseDetail} 
+            isReadOnly={false}
+            books={books} // ◀ 전체 도서 주입
+            onSelectBook={(book) => setSelectedBook(book)} // ◀ 클릭 시 동적 선택 연동
+            isMyPage={true} // ◀ 마이페이지 분할 레이아웃 활성화 스위치
+          />
         </div>
       )}
     </div>

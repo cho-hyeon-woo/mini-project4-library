@@ -19,7 +19,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
         background: "#fff"
       }}>
         <h1 style={{ margin: "0 0 5px 0", fontSize: "28px", color: "#333", fontWeight: "bold" }}>Walking Library</h1>
-        <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>책과 함께 걸어보장</p>
+        <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>책과 산책하는 시간</p>
       </div>
 
       {/* 2. 도서 검색바 */}
