@@ -1,105 +1,183 @@
-export default function BookDetail({ selectedBook, onStartEdit, onDelete, onClose }) {
+export default function BookDetail({ 
+  selectedBook, 
+  onStartEdit, 
+  onDelete, 
+  onClose,
+  isReadOnly = false 
+}) {
   
-  // 표지 이미지가 없거나 플레이스홀더(더미) 주소인 경우를 체크하는 기준
+  if (!selectedBook) return null;
+
   const hasNoImage = 
     !selectedBook?.coverImageUrl || 
-    selectedBook?.coverImageUrl.includes("via.placeholder.com") || 
     selectedBook?.coverImageUrl === "";
 
   return (
-    <section style={{ flex: 1, border: "1px solid #ccc", padding: "15px", borderRadius: "8px", background: "#fff", position: "relative" }}>
+    <section style={{ 
+      width: "100%", 
+      boxSizing: "border-box", 
+      border: "1px solid #e2e8f0", 
+      padding: "40px", 
+      borderRadius: "15px", 
+      background: "#fff", 
+      position: "relative",
+      marginTop: "30px",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+      animation: "fadeIn 0.5s ease-out"
+    }}>
       
-      {/* 우측 상단 닫기 버튼 */}
-      {selectedBook && (
-        <button 
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "15px",
-            right: "15px",
-            background: "none",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer",
-            color: "#999"
-          }}
-          title="상세 정보 닫기"
-        >
-          ✖
-        </button>
-      )}
+      {/* 닫기 버튼 */}
+      <button 
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          background: "#f1f5f9",
+          border: "none",
+          width: "35px",
+          height: "35px",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: "#64748b",
+          fontSize: "16px",
+          transition: "all 0.2s"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
+        onMouseLeave={(e) => e.currentTarget.style.background = "#f1f5f9"}
+      >
+        ✕
+      </button>
 
-      <h3 style={{ marginTop: 0 }}>🔍 도서 상세 정보</h3>
-      
-      {selectedBook ? (
-        <div>
-          {/* 표지 영역 레이아웃 */}
-          <div style={{ marginBottom: "15px", textAlign: "center", background: "#f5f5f5", padding: "15px", borderRadius: "6px" }}>
-            
+      {/* 2단 메인 레이아웃 */}
+      <div style={{ display: "flex", gap: "50px", alignItems: "flex-start" }}>
+        
+        {/* ◀ 좌측: 큼직한 도서 이미지 영역 */}
+        <div style={{ flex: "0 0 350px" }}>
+          <div style={{ 
+            width: "100%", 
+            height: "520px", 
+            background: "#f8fafc", 
+            borderRadius: "10px", 
+            overflow: "hidden", 
+            boxShadow: "0 15px 35px rgba(0,0,0,0.15)",
+            border: "1px solid #f1f5f9",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
             {hasNoImage ? (
-              /* 💡 이미지가 없을 때 노출되는 회색 안내 박스 (요청하신 스타일) */
-              <div style={{ 
-                width: "150px", 
-                height: "220px", 
-                backgroundColor: "#ccc", 
-                color: "#666", 
-                display: "inline-flex", 
-                alignItems: "center", 
-                justifyContent: "center", 
-                fontSize: "13px", 
-                fontWeight: "bold",
-                borderRadius: "4px",
-                border: "1px solid #aaa",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-                padding: "10px",
-                boxSizing: "border-box",
-                textAlign: "center"
-              }}>
-                생성된 이미지가 없습니다!
+              <div style={{ textAlign: "center", padding: "20px" }}>
+                <span style={{ fontSize: "50px", display: "block", marginBottom: "10px" }}>📖</span>
+                <p style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>등록된 표지가 없습니다</p>
               </div>
             ) : (
-              /* 이미지가 있을 때 노출되는 태그 */
               <img 
                 src={selectedBook.coverImageUrl} 
-                alt="표지 이미지" 
-                style={{ width: "150px", height: "220px", objectFit: "cover", border: "1px solid #aaa", boxShadow: "0 4px 6px rgba(0,0,0,0.1)", borderRadius: "4px" }} 
+                alt="도서 표지" 
+                style={{ width: "100%", height: "100%", objectFit: "cover" }} 
               />
             )}
+          </div>
+        </div>
 
-            <div style={{ marginTop: "12px" }}>
-              <button 
-                onClick={() => alert("2일차 OpenAI API 연동 대상 기능입니다.")} 
-                style={{ background: "#28a745", color: "#fff", border: "none", padding: "8px 12px", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
-              >
-                🪄 AI 표지 생성 (2일차 미션)
-              </button>
+        {/* ▶ 우측: 도서 상세 정보 영역 */}
+        <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div>
+            <span style={{ 
+              display: "inline-block", 
+              padding: "4px 12px", 
+              background: "#eff6ff", 
+              color: "#2563eb", 
+              borderRadius: "20px", 
+              fontSize: "12px", 
+              fontWeight: "bold",
+              marginBottom: "12px"
+            }}>
+              {selectedBook.genre || "일반도서"}
+            </span>
+            <h2 style={{ margin: "0 0 10px 0", fontSize: "36px", color: "#1e293b", letterSpacing: "-1px" }}>
+              {selectedBook.title}
+            </h2>
+            <p style={{ margin: 0, fontSize: "20px", color: "#475569", fontWeight: "500" }}>
+              {selectedBook.author} <span style={{ fontSize: "14px", color: "#94a3b8", fontWeight: "normal" }}>저자</span>
+            </p>
+          </div>
+
+          <div style={{ 
+            display: "flex", 
+            gap: "20px", 
+            borderTop: "1px solid #f1f5f9", 
+            borderBottom: "1px solid #f1f5f9", 
+            padding: "15px 0"
+          }}>
+            <div style={{ fontSize: "13px", color: "#64748b" }}>
+              <strong style={{ color: "#334155" }}>작성일:</strong> {new Date(selectedBook.createdAt).toLocaleDateString()}
+            </div>
+            {selectedBook.updatedAt && selectedBook.updatedAt !== selectedBook.createdAt && (
+              <div style={{ fontSize: "13px", color: "#64748b" }}>
+                <strong style={{ color: "#334155" }}>최종 수정:</strong> {new Date(selectedBook.updatedAt).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+
+          <div style={{ minHeight: "200px" }}>
+            <h4 style={{ margin: "0 0 10px 0", color: "#334155", fontSize: "16px" }}>줄거리 및 본문</h4>
+            <div style={{ 
+              fontSize: "16px", 
+              lineHeight: "1.8", 
+              color: "#334155", 
+              whiteSpace: "pre-wrap",
+              background: "#f8fafc",
+              padding: "25px",
+              borderRadius: "8px",
+              border: "1px solid #f1f5f9"
+            }}>
+              {selectedBook.content}
             </div>
           </div>
 
-          <h4 style={{ fontSize: "18px", margin: "10px 0 5px 0" }}>{selectedBook.title}</h4>
-          <p style={{ fontSize: "14px", color: "#555", margin: "0 0 10px 0" }}>저자: {selectedBook.author}</p>
-          <p style={{ fontSize: "12px", color: "#888", marginBottom: "15px" }}>
-            작성일: {selectedBook.createdAt} | 수정일: {selectedBook.updatedAt}
-          </p>
-          <p style={{ whiteSpace: "pre-wrap", background: "#f8f9fa", padding: "12px", borderRadius: "4px", border: "1px solid #edf2f7", lineHeight: "1.5" }}>
-            {selectedBook.content}
-          </p>
-          
-          <hr style={{ border: "0", borderTop: "1px solid #eee", margin: "15px 0" }} />
-          
-          <button onClick={onStartEdit} style={{ marginRight: "10px", padding: "6px 12px", cursor: "pointer" }}>
-            수정하기
-          </button>
-          <button 
-            onClick={() => onDelete(selectedBook.id)} 
-            style={{ background: "#dc3545", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer" }}
-          >
-            삭제하기
-          </button>
+          {/* 마이페이지 등 관리자 모드일 때만 버튼 노출 */}
+          {!isReadOnly && (
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <button 
+                onClick={onStartEdit}
+                style={{ 
+                  flex: 1, 
+                  padding: "12px", 
+                  background: "#1e293b", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: "6px", 
+                  cursor: "pointer", 
+                  fontWeight: "bold",
+                  fontSize: "14px"
+                }}
+              >
+                ✏️ 정보 수정하기
+              </button>
+              <button 
+                onClick={() => onDelete(selectedBook.id)} 
+                style={{ 
+                  padding: "12px 24px", 
+                  background: "#fee2e2", 
+                  color: "#ef4444", 
+                  border: "none", 
+                  borderRadius: "6px", 
+                  cursor: "pointer", 
+                  fontWeight: "bold",
+                  fontSize: "14px"
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          )}
         </div>
-      ) : (
-        <p style={{ color: "#999", textAlign: "center", marginTop: "40px" }}>목록에서 책을 선택하면 상세 내용이 표시됩니다.</p>
-      )}
+      </div>
     </section>
   );
 }
