@@ -1,4 +1,4 @@
-import { useState } from "react";
+/* 헤더*/
 
 export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery }) {
   const menuItems = [

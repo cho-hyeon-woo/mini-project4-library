@@ -1,3 +1,13 @@
+//1.npm install로 의존성 설치
+//2. npm run dev로 vite 페이지 실행
+//3. npm install json-server@0.17.4로 json서버 의존성 설치
+//4. npx json-server --watch db.json으로 json 서버 실행
+
+/* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
+ * - json-server 및 OpenAI Image API 연동 및 제어
+ * - 홈 로비(추천/목록 그리드), 도서 등록(Form), 마이페이지(작가 전용 2단 뷰)
+ */
+
 import { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
@@ -61,7 +71,7 @@ export default function App() {
     };
   }, [searchQuery]);
 
-  // 📖 이제 필터링은 타이핑할 때마다 바로 도는 게 아니라, 멈춘 후인 debouncedSearchQuery를 기준으로 작동합니다.
+  // 검색 시 debouncedSearchQuery를 기준으로 작동
   const filteredBooks = books.filter(book => 
     book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
     book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
@@ -186,7 +196,7 @@ export default function App() {
     setTitle(selectedBook.title); setAuthor(selectedBook.author); setContent(selectedBook.content);
     setBookGenre(selectedBook.genre || "실용서적"); setCoverStyle(selectedBook.style || "미니멀");
     setTempPreviewImage(selectedBook.coverImageUrl || "");
-    setIsEditing(true); setCurrentMenu("register"); // 🎯 도서 등록하기 탭 활성화 연동 완료
+    setIsEditing(true); setCurrentMenu("register"); 
   };
 
   const handleOpenDetail = (book, source) => {
@@ -208,11 +218,11 @@ export default function App() {
     <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
       <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
-      {/* 🏠 홈 화면 렌더링 구역 */}
+      {/* 홈 화면 */}
       {currentMenu === "home" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
           
-          {/* 🎯 1. 이 달의 추천 도서 (검색창이 비어있을 때만 섹션 + 내부 상세 뷰가 일괄 마운트 해제됨) */}
+          {/*  이 달의 추천 도서*/}
           {randomBook && !searchQuery && (
             <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
               <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
@@ -235,7 +245,7 @@ export default function App() {
             </section>
           )}
 
-          {/* 📖 2. 하단 도서 목록 그리드 (중복 테두리 버그 완벽 수정) */}
+          {/* 하단 도서 목록 영역 */}
           <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
             <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
@@ -267,7 +277,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ✍️ 도서 등록 대시보드 */}
+      {/* 도서 등록 대시보드 */}
       {currentMenu === "register" && (
         <BookForm 
           title={title} setTitle={setTitle} author={author} setAuthor={setAuthor} content={content} setContent={setContent}
@@ -283,7 +293,7 @@ export default function App() {
         />
       )}
 
-      {/* 👤 마이 페이지 화면 */}
+      {/* 마이 페이지 화면 */}
       {currentMenu === "mypage" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold" }}>👤 마이 페이지 (작가 전용 관리실)</h3>

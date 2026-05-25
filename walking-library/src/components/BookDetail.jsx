@@ -1,20 +1,25 @@
+/* 1. 홈 로 : 상세 안내 (읽기 전용)
+ * 2. 마이페이지
+ * - 현재 등록된 전체 도서 세로 스크롤
+ * - 선택된 도서의 상세 텍스트 정보 표기 및 정보 수정/삭제 기능
+ */
+
 export default function BookDetail({ 
   selectedBook, 
   onStartEdit, 
   onDelete, 
   onClose,
-  isReadOnly = false,
-  books = [],            // ◀ 마이페이지 연동용 목록 데이터
-  onSelectBook = null,   // ◀ 마이페이지용 도서 클릭 핸들러
-  isMyPage = false       // ◀ 마이페이지 모드 활성화 스위치
+  books = [],            // 마이페이지 연동용 목록 데이터
+  onSelectBook = null,   // 마이페이지용 도서 클릭 핸들러
+  isMyPage = false       // 마이페이지 모드 활성화 스위치
 }) {
   
   if (isMyPage) {
-    // 👤 [마이 페이지 전용 UI 모드]
+    // [마이 페이지 전용 UI 모드]
     return (
       <div style={{ display: "flex", gap: "30px", width: "100%", marginTop: "10px", alignItems: "flex-start" }}>
         
-        {/* 1. 좌측 영역: 작성한 도서 목록 (세로 스크롤형 리스트) */}
+        {/* 1. 좌측 영역*/}
         <div style={{ flex: "0 0 280px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff", padding: "15px", boxSizing: "border-box", maxHeight: "600px", overflowY: "auto", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
           <h4 style={{ margin: "0 0 12px 0", color: "#334155", fontSize: "15px", borderBottom: "2px solid #f1f5f9", paddingBottom: "8px" }}>✍️ 작성한 도서 목록 ({books.length})</h4>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -42,7 +47,7 @@ export default function BookDetail({
           </div>
         </div>
 
-        {/* 2. 우측 영역: 도서 상세 정보 (설계판 제거본) */}
+        {/* 2. 우측 영역*/}
         <div style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff", padding: "30px", boxSizing: "border-box", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
           {selectedBook ? (
             <div style={{ display: "flex", gap: "30px", alignItems: "flex-start" }}>
@@ -76,7 +81,7 @@ export default function BookDetail({
                   </div>
                 </div>
 
-                {/* 기능 버튼 활성화 마운트 */}
+                {/* 기능 버튼 */}
                 <div style={{ display: "flex", gap: "8px", marginTop: "5px" }}>
                   <button 
                     onClick={onStartEdit}
@@ -104,7 +109,7 @@ export default function BookDetail({
     );
   }
 
-  // 🏠 [기존 홈 화면 컴포넌트 하단 전용 모드 - 유지]
+  // [기존 홈 화면 컴포넌트 하단 전용]
   if (!selectedBook) return null;
   const hasNoImage = !selectedBook?.coverImageUrl || selectedBook?.coverImageUrl === "";
 

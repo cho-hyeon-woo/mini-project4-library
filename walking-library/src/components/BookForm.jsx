@@ -1,3 +1,9 @@
+/* - 좌측: AI 표지 생성 이미지 실시간 미리보기 피드백 및 로컬 이미지 파일 업로드 연동
+ * - 우측: 도서 메타데이터(제목, 작가, 줄거리) 및 OpenAI API (모델, 해상도, 장르 등) 설정 폼
+ * - 이미지 생성 중 가림막 활성화 및 생성 취소 기능 매칭
+ * - 생성 완료 시 '최종 등록 / 다시 생성 / 취소' 3버튼 노출
+ */
+
 import { useState } from "react";
 
 export default function BookForm({
@@ -41,7 +47,7 @@ export default function BookForm({
       position: "relative"
     }}>
       
-      {/* ⏳ 1. 이미지 생성 중 반투명 검은 오버레이 + 생성 취소 버튼 */}
+      {/* 이미지 생성 중 반투명 필터,취소 버튼 */}
       {isGenerating && (
         <div style={{
           position: "absolute",
@@ -93,7 +99,7 @@ export default function BookForm({
             textAlign: "center",
             overflow: "hidden"
           }}>
-            {/* 🎯 AI 생성 완료 혹은 로컬 파일이 있을 때 검토 단계 이미지 출력 */}
+            {/* AI 이미지 생성 완료 혹은 로컬 파일이 있을 때 검토*/}
             {tempPreviewImage ? (
               <img src={tempPreviewImage} alt="표지 미리보기" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : localPreview ? (
@@ -110,7 +116,7 @@ export default function BookForm({
             )}
           </div>
 
-          {/* 🎯 미리보기 이미지가 없을 때만 일반 파일 선택 창 노출 */}
+          {/*미리보기 이미지가 없을 때만 일반 파일 선택 창 노출 */}
           {!tempPreviewImage && (
             <div style={{ width: "100%", border: "1px solid #ddd", borderRadius: "8px", padding: "15px", background: "#fdfdfd", boxSizing: "border-box" }}>
               <label style={{ display: "block", fontSize: "13px", fontWeight: "bold", color: "#555", marginBottom: "8px" }}>
@@ -120,7 +126,7 @@ export default function BookForm({
             </div>
           )}
 
-          {/* 🎯 이 블록 전체를 복사해서 덮어씌워 주세요 */}
+          
           {tempPreviewImage && (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", background: "#f4f9ff", padding: "15px", borderRadius: "8px", border: "1px solid #bae1ff" }}>
               <p style={{ margin: "0 0 5px 0", fontSize: "13px", color: "#0056b3", fontWeight: "bold", textAlign: "center" }}>🎉 표지 매칭 완료! 등록하시겠습니까?</p>
@@ -131,7 +137,7 @@ export default function BookForm({
                   type="button" 
                   onClick={onFinalSave} 
                   style={{ 
-                    flex: 1, // 👈 1로 조정하여 3등분 구현
+                    flex: 1, 
                     padding: "10px 0", 
                     background: "#28a745", 
                     color: "#fff", 
@@ -139,7 +145,7 @@ export default function BookForm({
                     borderRadius: "4px", 
                     cursor: "pointer", 
                     fontWeight: "bold", 
-                    fontSize: "12px", // 👈 공간 균등 분할에 맞춰 가독성 좋은 12px 설정
+                    fontSize: "12px", 
                     whiteSpace: "nowrap"
                   }}
                 >
@@ -151,7 +157,7 @@ export default function BookForm({
                     type="button" 
                     onClick={onSave} 
                     style={{ 
-                      flex: 1, // 👈 1로 조정하여 3등분 구현
+                      flex: 1, 
                       padding: "10px 0", 
                       background: "#ffa042", 
                       color: "#fff", 
@@ -171,7 +177,7 @@ export default function BookForm({
                   type="button" 
                   onClick={() => setTempPreviewImage("")} 
                   style={{ 
-                    flex: 1, // 👈 1로 조정하여 3등분 구현
+                    flex: 1, 
                     padding: "10px 0", 
                     background: "#6c757d", 
                     color: "#fff", 
@@ -188,10 +194,10 @@ export default function BookForm({
 
               </div>
             </div>
-          )} {/* 👈 중괄호와 소괄호 짝이 여기서 딱 완벽하게 끝납니다! */}
+          )} 
         </div>
 
-        {/* ▶ 우측 영역: 기존 스케치 옵션 다이렉트 복원 */}
+        
         <div style={{ flex: "1.5", display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           
           {/* 제목 & 저자 */}
@@ -220,7 +226,7 @@ export default function BookForm({
             </div>
           </div>
 
-          {/* OpenAI 상세 설정 fieldset 온전하게 부활 */}
+          {/* OpenAI 상세 설정*/}
           <fieldset style={{ border: "1px solid #007bff", borderRadius: "8px", padding: "15px", background: "#f7faff", margin: 0 }}>
             <legend style={{ color: "#007bff", fontWeight: "bold", fontSize: "13px", padding: "0 6px" }}>⚙️ OpenAI API & 표지 상세 설정</legend>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
