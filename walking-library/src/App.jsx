@@ -24,7 +24,8 @@ export default function App() {
 
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [randomBook, setRandomBook] = useState(null);  
 
   const [title, setTitle] = useState("");
@@ -50,6 +51,24 @@ export default function App() {
   const [localImageBase64, setLocalImageBase64] = useState("");
   const abortControllerRef = useRef(null);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  // 📖 이제 필터링은 타이핑할 때마다 바로 도는 게 아니라, 멈춘 후인 debouncedSearchQuery를 기준으로 작동합니다.
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+    book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+  );
+  
+  
+
   const fetchBooks = async () => {
     try {
       const res = await fetch(dbAddress);
@@ -67,10 +86,7 @@ export default function App() {
 
   useEffect(() => { fetchBooks(); }, []);
 
-  const filteredBooks = books.filter(book => 
-    book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    book.author.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  
 
   const handleInitiatePreview = async () => {
     if (!title.trim() || !author.trim() || !content.trim()) {
@@ -192,10 +208,12 @@ export default function App() {
     <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
       <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
-      {/* 🏠 홈 화면 */}
+      {/* 🏠 홈 화면 렌더링 구역 */}
       {currentMenu === "home" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
-          {randomBook && (
+          
+          {/* 🎯 1. 이 달의 추천 도서 (검색창이 비어있을 때만 섹션 + 내부 상세 뷰가 일괄 마운트 해제됨) */}
+          {randomBook && !searchQuery && (
             <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
               <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
               <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
@@ -204,7 +222,7 @@ export default function App() {
                 </div>
                 <div style={{ flex: 1, textAlign: "center" }}>
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
-                  <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>저자</span></p>
+                  <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span></p>
                   <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
                   <span style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
                 </div>
@@ -217,8 +235,9 @@ export default function App() {
             </section>
           )}
 
+          {/* 📖 2. 하단 도서 목록 그리드 (중복 테두리 버그 완벽 수정) */}
           <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
+            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
               {filteredBooks.map((book) => (
                 <div 
@@ -237,12 +256,14 @@ export default function App() {
               ))}
             </div>
             {filteredBooks.length === 0 && <p style={{ textAlign: "center", color: "#999", margin: "40px 0" }}>검색된 도서가 없습니다.</p>}
+            
             <div ref={listDetailRef}>
               {selectedBook && detailViewSource === "list" && (
                 <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
               )}
             </div>
           </section>
+
         </div>
       )}
 
@@ -262,7 +283,7 @@ export default function App() {
         />
       )}
 
-      {/* 👤 마이 페이지 화면 (미구현 상단 탭 텍스트 완벽 제거 및 2단 독립 뷰바 배치) */}
+      {/* 👤 마이 페이지 화면 */}
       {currentMenu === "mypage" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold" }}>👤 마이 페이지 (작가 전용 관리실)</h3>
@@ -273,9 +294,9 @@ export default function App() {
             onDelete={handleDelete} 
             onClose={handleCloseDetail} 
             isReadOnly={false}
-            books={books} // ◀ 전체 도서 주입
-            onSelectBook={(book) => setSelectedBook(book)} // ◀ 클릭 시 동적 선택 연동
-            isMyPage={true} // ◀ 마이페이지 분할 레이아웃 활성화 스위치
+            books={books} 
+            onSelectBook={(book) => setSelectedBook(book)} 
+            isMyPage={true} 
           />
         </div>
       )}
