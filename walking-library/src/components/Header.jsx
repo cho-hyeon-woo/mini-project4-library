@@ -10,7 +10,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
   return (
     <header style={{ marginBottom: "30px", width: "100%" }}>
       {/* 1. 최상단 로고 박스 */}
-      <div style={{
+      <div className="brand-panel" style={{
         border: "1px solid #ccc",
         borderRadius: "6px",
         padding: "20px",
@@ -23,7 +23,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
       </div>
 
       {/* 2. 도서 검색바 */}
-      <div style={{ display: "flex", marginBottom: "20px", width: "100%" }}>
+      <div className="search-row" style={{ display: "flex", marginBottom: "20px", width: "100%" }}>
         <input 
           type="text" 
           placeholder="도서 검색하기" 
@@ -39,7 +39,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
             outline: "none"
           }}
         />
-        <button style={{
+        <button className="search-button" style={{
           padding: "0 25px",
           background: "#ffa042",
           border: "none",
@@ -54,12 +54,13 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
       </div>
 
       {/* 3. 네비게이션 버튼 (3열 배치) */}
-      <nav style={{ display: "flex", gap: "15px", width: "100%" }}>
+      <nav className="nav-tabs" style={{ display: "flex", gap: "15px", width: "100%" }}>
         {menuItems.map((item) => {
           const isActive = currentMenu === item.id;
           return (
             <button
               key={item.id}
+              className="nav-tab"
               onClick={() => onMenuChange(item.id)}
               style={{
                 flex: 1,

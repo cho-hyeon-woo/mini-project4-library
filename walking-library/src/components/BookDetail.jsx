@@ -28,6 +28,7 @@ export default function BookDetail({
               return (
                 <div
                   key={book.id}
+                  className="mypage-book-item"
                   onClick={() => onSelectBook && onSelectBook(book)}
                   style={{
                     padding: "12px",
@@ -84,12 +85,14 @@ export default function BookDetail({
                 {/* 기능 버튼 */}
                 <div style={{ display: "flex", gap: "8px", marginTop: "5px" }}>
                   <button 
+                    className="edit-button"
                     onClick={onStartEdit}
                     style={{ flex: 1, padding: "10px", background: "#1e293b", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" }}
                   >
                     ✏️ 정보 수정하기
                   </button>
                   <button 
+                    className="delete-button"
                     onClick={() => onDelete(selectedBook.id)}
                     style={{ padding: "10px 20px", background: "#fee2e2", color: "#ef4444", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" }}
                   >
@@ -115,7 +118,7 @@ export default function BookDetail({
 
   return (
     <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #e2e8f0", padding: "40px", borderRadius: "15px", background: "#fff", position: "relative", marginTop: "30px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)" }}>
-      <button onClick={onClose} style={{ position: "absolute", top: "20px", right: "20px", background: "#f1f5f9", border: "none", width: "35px", height: "35px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b", fontSize: "16px" }}>✕</button>
+      <button className="close-button" onClick={onClose} style={{ position: "absolute", top: "20px", right: "20px", background: "#f1f5f9", border: "none", width: "35px", height: "35px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b", fontSize: "16px" }}>✕</button>
       <div style={{ display: "flex", gap: "50px", alignItems: "flex-start" }}>
         <div style={{ flex: "0 0 350px" }}>
           <div style={{ width: "100%", height: "520px", background: "#f8fafc", borderRadius: "10px", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
