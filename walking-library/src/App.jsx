@@ -4,17 +4,21 @@ import BookForm from "./components/BookForm";
 import BookList from "./components/BookList";
 import BookDetail from "./components/BookDetail";
 import BookRecommend from "./components/BookRecommend";
+import SearchBar from "./components/SearchBar";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
 
-function buildBookCoverPrompt(book) {
+function buildBookCoverPrompt(book, bookGenre, coverStyle) {
   return [
     "Create a polished vertical book cover illustration.",
     "Use an artistic, publication-ready style suitable for a Korean creative writing app.",
+    `Genre: ${bookGenre}`,
+    `Cover style: ${coverStyle}`,
     `Title: ${book.title}`,
     `Author: ${book.author}`,
     `Book content: ${book.content}`,
-    "The cover should visually reflect the mood and core theme of the book.",
+    "The cover should visually reflect the selected genre, mood, and core theme of the book.",
+    "Apply the selected cover style clearly while keeping the result suitable for a finished book cover.",
     "If text is included, keep it minimal and legible.",
     "Do not include mockup borders, UI elements, watermarks, or extra explanation.",
   ].join("\n");
@@ -34,6 +38,28 @@ function getOpenAiErrorMessage(status, payload) {
   return apiMessage || `OpenAI 요청에 실패했습니다. (status: ${status})`;
 }
 
+function normalizeSearchText(value) {
+  return value.trim().toLocaleLowerCase("ko-KR");
+}
+
+function startsWithSearchKeyword(value, keyword) {
+  return normalizeSearchText(value || "").startsWith(keyword);
+}
+
+function filterBooksByPrefix(books, searchKeyword) {
+  const keyword = normalizeSearchText(searchKeyword);
+
+  if (!keyword) {
+    return books;
+  }
+
+  return books.filter(
+    (book) =>
+      startsWithSearchKeyword(book.title, keyword) ||
+      startsWithSearchKeyword(book.author, keyword)
+  );
+}
+
 export default function App() {
   const dbAddress = "http://localhost:3000/books";
 
@@ -41,6 +67,7 @@ export default function App() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [apiKey, setApiKey] = useState("");
@@ -48,6 +75,8 @@ export default function App() {
   const [imageSize, setImageSize] = useState("1024x1536");
   const [imageQuality, setImageQuality] = useState("low");
   const [outputFormat, setOutputFormat] = useState("png");
+  const [bookGenre, setBookGenre] = useState("실용서적");
+  const [coverStyle, setCoverStyle] = useState("미니멀");
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [coverError, setCoverError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,7 +122,7 @@ export default function App() {
     setCoverError("");
 
     try {
-      const prompt = buildBookCoverPrompt(book);
+      const prompt = buildBookCoverPrompt(book, bookGenre, coverStyle);
 
       const openAiRes = await fetch(OPENAI_IMAGE_API_URL, {
         method: "POST",
@@ -226,6 +255,9 @@ export default function App() {
     setCoverError("");
   };
 
+  const filteredBooks = filterBooksByPrefix(books, searchKeyword);
+  const hasSearchKeyword = searchKeyword.trim().length > 0;
+
   return (
     <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto", fontFamily: "sans-serif" }}>
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -249,6 +281,11 @@ export default function App() {
         selectedBook={selectedBook}
         onSelectBook={handleSelectBook}
         horizontal={true}
+      <SearchBar
+        value={searchKeyword}
+        onChange={setSearchKeyword}
+        resultCount={filteredBooks.length}
+        totalCount={books.length}
       />
 
       <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
@@ -256,6 +293,11 @@ export default function App() {
           books={filteredBooks} 
           selectedBook={selectedBook} 
           onSelectBook={handleSelectBook} 
+          emptyMessage={
+            hasSearchKeyword
+              ? "검색어로 시작하는 책이나 작가를 찾지 못했습니다."
+              : "등록된 도서가 없습니다."
+          }
         />
         
         <BookDetail 
@@ -273,6 +315,10 @@ export default function App() {
           setImageQuality={setImageQuality}
           outputFormat={outputFormat}
           setOutputFormat={setOutputFormat}
+          bookGenre={bookGenre}
+          setBookGenre={setBookGenre}
+          coverStyle={coverStyle}
+          setCoverStyle={setCoverStyle}
           isGeneratingCover={isGeneratingCover}
           coverError={coverError}
           onGenerateCover={handleGenerateCover}
