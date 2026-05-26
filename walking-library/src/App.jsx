@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookList from "./components/BookList";
 import BookDetail from "./components/BookDetail";
+import BookRecommend from "./components/BookRecommend";
 import SearchBar from "./components/SearchBar";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
@@ -78,6 +79,13 @@ export default function App() {
   const [coverStyle, setCoverStyle] = useState("미니멀");
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [coverError, setCoverError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // const filteredBooks = books.filter(book =>
+  //   book.title.includes(searchTerm) || book.author.includes(searchTerm)
+  // );
+
+  const latestBook = books[books.length -1];
 
   const fetchBooks = async () => {
     const res = await fetch(dbAddress);
@@ -206,7 +214,7 @@ export default function App() {
           author,
           content,
           coverImageUrl: "",
-          createdAt: nowISO, // 최초 생성 시각
+          createdAt: nowISO, // 최초 생성 시각 !
           updatedAt: nowISO,
         }),
       });
@@ -252,7 +260,7 @@ export default function App() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto", fontFamily: "sans-serif" }}>
-      <Header />
+      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       
       <BookForm 
         title={title}
@@ -266,6 +274,15 @@ export default function App() {
         onCancel={cancelEdit}
       />
 
+      <BookRecommend latestBook={latestBook}/>
+
+      <BookList
+        books={books}
+        selectedBook={selectedBook}
+        onSelectBook={handleSelectBook}
+        horizontal={true}
+      />
+      
       <SearchBar
         value={searchKeyword}
         onChange={setSearchKeyword}
