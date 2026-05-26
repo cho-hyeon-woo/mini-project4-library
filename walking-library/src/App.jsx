@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookDetail from "./components/BookDetail";
@@ -83,6 +84,7 @@ export default function App() {
   const fetchBooks = async () => {
     try {
       const res = await fetch(dbAddress);
+      if (!res.ok) throw new Error("도서 목록을 불러오지 못했습니다.");
       const data = await res.json();
       setBooks(data);
       
@@ -95,21 +97,24 @@ export default function App() {
     }
   };
 
+  // Initial book loading should run once when the app mounts.
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { fetchBooks(); }, []);
 
   
 
   const handleInitiatePreview = async () => {
     if (!title.trim() || !author.trim() || !content.trim()) {
-      alert("모든 필수 항목을 기입해 주세요.");
+      toast.warning("모든 필수 항목을 기입해 주세요.");
       return;
     }
 
     if (!apiKey.trim()) {
       if (localImageBase64) {
         setTempPreviewImage(localImageBase64);
+        toast.info("업로드한 이미지로 표지 미리보기를 준비했습니다.");
       } else {
-        alert("AI 표지를 생성하기 위한 OpenAI API Key를 입력하거나,\n좌측 하단에서 직접 업로드할 이미지 파일을 선택해 주세요!");
+        toast.warning("OpenAI API Key를 입력하거나 표지 이미지를 업로드해 주세요.");
       }
       return;
     }
@@ -134,11 +139,13 @@ export default function App() {
       if (!b64Json) throw new Error("이미지 본문이 누락되었습니다.");
 
       setTempPreviewImage(`data:image/${outputFormat};base64,${b64Json}`);
+      toast.success("표지 미리보기가 생성되었습니다.");
     } catch (err) {
       if (err.name === 'AbortError') {
         console.log("이미지 생성 취소됨");
+        toast.info("이미지 생성을 취소했습니다.");
       } else {
-        alert(`에러: ${err.message}`);
+        toast.error(`표지 생성 실패: ${err.message}`);
       }
     } finally {
       setIsGeneratingCover(false);
@@ -152,6 +159,7 @@ export default function App() {
 
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
+    const wasEditing = isEditing;
     const payload = {
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
@@ -161,35 +169,44 @@ export default function App() {
 
     try {
       if (isEditing) {
-        await fetch(`${dbAddress}/${selectedBook.id}`, {
+        const res = await fetch(`${dbAddress}/${selectedBook.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...selectedBook, ...payload }),
         });
+        if (!res.ok) throw new Error("도서 수정 요청에 실패했습니다.");
         setIsEditing(false);
       } else {
-        await fetch(dbAddress, {
+        const res = await fetch(dbAddress, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...payload, createdAt: nowISO }),
         });
+        if (!res.ok) throw new Error("도서 등록 요청에 실패했습니다.");
       }
 
       setTitle(""); setAuthor(""); setContent(""); setSelectedBook(null);
       setTempPreviewImage(""); setLocalImageBase64(""); handleCloseDetail();
       fetchBooks();
       setCurrentMenu("home");
+      toast.success(wasEditing ? "도서 정보가 수정되었습니다." : "도서가 등록되었습니다.");
     } catch (err) {
-      alert("도서 저장에 실패했습니다.");
+      toast.error(err.message || "도서 저장에 실패했습니다.");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("정말 이 책을 삭제하시겠습니까?")) {
-      await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
-      setSelectedBook(null); setDetailViewSource(null);
-      if (randomBook?.id === id) setRandomBook(null);
-      fetchBooks();
+      try {
+        const res = await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("도서 삭제 요청에 실패했습니다.");
+        setSelectedBook(null); setDetailViewSource(null);
+        if (randomBook?.id === id) setRandomBook(null);
+        fetchBooks();
+        toast.success("도서가 삭제되었습니다.");
+      } catch (err) {
+        toast.error(err.message || "도서 삭제에 실패했습니다.");
+      }
     }
   };
 
@@ -216,6 +233,7 @@ export default function App() {
   };
 
   return (
+    <>
     <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
       <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
@@ -312,5 +330,19 @@ export default function App() {
         </div>
       )}
     </div>
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+      transition={Bounce}
+      limit={3}
+    />
+    </>
   );
 }
