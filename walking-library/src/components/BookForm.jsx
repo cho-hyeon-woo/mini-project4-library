@@ -20,7 +20,7 @@ export default function BookForm({
   isEditing, onSave, onFinalSave, onCancel,
   isGenerating, onCancelGeneration, 
   tempPreviewImage, setTempPreviewImage,
-  localImageBase64, setLocalImageBase64
+   setLocalImageBase64
 }) {
   const [localPreview, setLocalPreview] = useState(null);
 
