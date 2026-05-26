@@ -234,7 +234,7 @@ export default function App() {
 
   return (
     <>
-    <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
+    <div className="app-shell" style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
       <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
       {/* 홈 화면 */}
@@ -243,7 +243,7 @@ export default function App() {
           
           {/*  이 달의 추천 도서*/}
           {randomBook && !searchQuery && (
-            <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
+            <section className="recommend-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
               <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
               <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
                 <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb" }}>
@@ -253,7 +253,7 @@ export default function App() {
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
                   <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span></p>
                   <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
-                  <span style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
+                  <span className="detail-link" style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
                 </div>
               </div>
               <div ref={recommendDetailRef}>
@@ -265,12 +265,13 @@ export default function App() {
           )}
 
           {/* 하단 도서 목록 영역 */}
-          <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
+          <section className="book-list-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
             <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
               {filteredBooks.map((book) => (
                 <div 
                   key={book.id} 
+                  className="book-card"
                   onClick={() => handleOpenDetail(book, "list")}
                   style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", transition: "transform 0.2s", boxSizing: "border-box" }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
