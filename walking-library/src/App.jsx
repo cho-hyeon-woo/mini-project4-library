@@ -1,8 +1,7 @@
 //1.npm install로 의존성 설치
 //2. npm run dev로 vite 페이지 실행
-//3. walking-library 폴더 안에서 다음 내용 실행
-//4. npm install json-server@0.17.4로 json서버 의존성 설치
-//5. npx json-server --watch db.json으로 json 서버 실행
+//3. npm install json-server@0.17.4로 json서버 의존성 설치
+//4. npx json-server --watch db.json으로 json 서버 실행
 
 /* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
  * - json-server 및 OpenAI Image API 연동 및 제어
@@ -14,6 +13,7 @@ import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookDetail from "./components/BookDetail";
+import "react-toastify/dist/ReactToastify.css";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
 
@@ -97,8 +97,6 @@ export default function App() {
     }
   };
 
-  // Initial book loading should run once when the app mounts.
-  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { fetchBooks(); }, []);
 
   
@@ -124,7 +122,47 @@ export default function App() {
     abortControllerRef.current = controller;
 
     try {
-      const prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle);
+      let prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle);
+      if (localImageBase64) {
+        const pureBase64 = localImageBase64.split(",")[1];
+        const visionRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { 
+                  type: "text", 
+                  text: "Analyze this rough sketch/storyboard for a book cover. Describe its layout, composition, subject placement, and implied framing in English so that DALL-E 3 can replicate this exact composition. Keep it concise." 
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:image/jpeg;base64,${pureBase64}`
+                  }
+                }
+              ]
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
+
+      if (visionRes.ok) {
+        const visionData = await visionRes.json();
+        const sketchDescription = visionData.choices?.[0]?.message?.content;
+        
+        if (sketchDescription) {
+          prompt += `\n\n[CRITICAL COMPOSITION GUIDE]: Replicate the exact composition and layout described here: ${sketchDescription}`;
+        }
+      }
+    }
       const openAiRes = await fetch(OPENAI_IMAGE_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey.trim()}` },
