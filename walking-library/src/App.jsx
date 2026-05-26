@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookDetail from "./components/BookDetail";
@@ -100,15 +101,16 @@ export default function App() {
 
   const handleInitiatePreview = async () => {
     if (!title.trim() || !author.trim() || !content.trim()) {
-      alert("모든 필수 항목을 기입해 주세요.");
+      toast.warning("모든 필수 항목을 기입해 주세요.");
       return;
     }
 
     if (!apiKey.trim()) {
       if (localImageBase64) {
         setTempPreviewImage(localImageBase64);
+        toast.info("업로드한 이미지로 표지 미리보기를 준비했습니다.");
       } else {
-        alert("AI 표지를 생성하기 위한 OpenAI API Key를 입력하거나,\n좌측 하단에서 직접 업로드할 이미지 파일을 선택해 주세요!");
+        toast.warning("OpenAI API Key를 입력하거나 표지 이미지를 업로드해 주세요.");
       }
       return;
     }
@@ -174,6 +176,7 @@ export default function App() {
       if (!b64Json) throw new Error("이미지 본문이 누락되었습니다.");
 
       setTempPreviewImage(`data:image/${outputFormat};base64,${b64Json}`);
+      toast.success("표지 미리보기가 생성되었습니다.");
     } catch (err) {
       if (err.name === 'AbortError') {
         console.log("이미지 생성 취소됨");
@@ -219,8 +222,9 @@ export default function App() {
       setTempPreviewImage(""); setLocalImageBase64(""); handleCloseDetail();
       fetchBooks();
       setCurrentMenu("home");
+      toast.success(wasEditing ? "도서 정보가 수정되었습니다." : "도서가 등록되었습니다.");
     } catch (err) {
-      alert("도서 저장에 실패했습니다.");
+      toast.error("도서 저장에 실패했습니다.");
     }
   };
 
@@ -230,6 +234,7 @@ export default function App() {
       setSelectedBook(null); setDetailViewSource(null);
       if (randomBook?.id === id) setRandomBook(null);
       fetchBooks();
+      toast.success("도서가 삭제되었습니다.");
     }
   };
 
@@ -351,6 +356,19 @@ export default function App() {
           />
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+        limit={3}
+      />
     </div>
   );
 }
