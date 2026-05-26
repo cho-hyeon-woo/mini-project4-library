@@ -1,7 +1,8 @@
 //1.npm install로 의존성 설치
 //2. npm run dev로 vite 페이지 실행
-//3. npm install json-server@0.17.4로 json서버 의존성 설치
-//4. npx json-server --watch db.json으로 json 서버 실행
+//3. walking-library 폴더 안에서 다음 내용 실행
+//4. npm install json-server@0.17.4로 json서버 의존성 설치
+//5. npx json-server --watch db.json으로 json 서버 실행
 
 /* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
  * - json-server 및 OpenAI Image API 연동 및 제어
