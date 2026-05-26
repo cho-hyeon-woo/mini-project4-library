@@ -20,7 +20,7 @@ export default function BookForm({
   isEditing, onSave, onFinalSave, onCancel,
   isGenerating, onCancelGeneration, 
   tempPreviewImage, setTempPreviewImage,
-  localImageBase64, setLocalImageBase64
+   setLocalImageBase64
 }) {
   const [localPreview, setLocalPreview] = useState(null);
 
@@ -267,8 +267,8 @@ export default function BookForm({
                   <label style={{ fontSize: "12px", color: "#444" }}>이미지 품질</label>
                   <select value={imageQuality} onChange={(e) => setImageQuality(e.target.value)} disabled={!!tempPreviewImage} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="low">low (빠른 생성)</option>
-                    <option value="hd">hd (고화질)</option>
-                    <option value="standard">standard (일반)</option>
+                    <option value="high">high (고화질)</option>
+                    <option value="medium">medium (일반)</option>
                   </select>
                 </div>
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
