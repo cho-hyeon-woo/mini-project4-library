@@ -322,8 +322,8 @@ export default function BookForm({
                   <label style={{ fontSize: "12px", color: "#444" }}>이미지 품질</label>
                   <select value={imageQuality} onChange={(e) => setImageQuality(e.target.value)} disabled={!!tempPreviewImage} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="low">low (빠른 생성)</option>
-                    <option value="medium">medium (고화질)</option>medium
-                    <option value="high">high (일반)</option>high
+                    <option value="medium">medium (일반)</option>medium
+                    <option value="high">high (고화질)</option>high
                   </select>
                 </div>
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
