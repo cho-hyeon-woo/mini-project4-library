@@ -66,22 +66,16 @@ textarea:disabled {
 }
 
 .book-card {
-  transition: transform 0.24s cubic-bezier(0.25, 1, 0.5, 1), 
-              box-shadow 0.24s ease,
+  transition: box-shadow 0.24s ease,
               border-color 0.24s ease,
               background-color 0.24s ease !important;
 }
 
 .book-card:hover {
-  transform: translateY(-6px) scale(1.02) !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 
               0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
   border-color: #f59e0b !important;
   background-color: #fffaf0 !important;
-}
-
-.book-card:active {
-  transform: translateY(-2px) scale(0.99) !important;
 }
 
 .mypage-book-item {
