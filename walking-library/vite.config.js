@@ -6,10 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/kakao-api': {
-        target: 'https://dapi.kakao.com',
+      '/aladin-api': {
+        target: 'http://www.aladin.co.kr',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/kakao-api/, ''),
+        rewrite: (path) => path.replace(/^\/aladin-api/, ''),
       },
     },
   },
