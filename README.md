@@ -139,4 +139,5 @@ npm run dev
 ```
 
 ## 실행 화면
+<img width="1140" height="522" alt="image" src="https://github.com/user-attachments/assets/d2c9aae5-f18e-4429-af0e-774135ebb1ac" />
 
