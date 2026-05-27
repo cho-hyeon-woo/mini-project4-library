@@ -6,6 +6,8 @@
 
 import { useState } from "react";
 
+const KAKAO_API_KEY = "49224e48470012864bea243dcbc35d50"; // 여기에 발급받은 REST API 키를 입력하세요
+
 export default function BookForm({
   title, setTitle,
   author, setAuthor,
@@ -23,6 +25,44 @@ export default function BookForm({
   localImageBase64, setLocalImageBase64
 }) {
   const [localPreview, setLocalPreview] = useState(null);
+  const [isbn, setIsbn] = useState("");
+  const [isbnLoading, setIsbnLoading] = useState(false);
+  const [isbnError, setIsbnError] = useState("");
+
+  const handleIsbnSearch = async () => {
+    if (!isbn.trim()) return;
+    setIsbnLoading(true);
+    setIsbnError("");
+    try {
+      const res = await fetch(
+        `/kakao-api/v3/search/book?query=${isbn.trim()}&size=10`,
+        { headers: { Authorization: `KakaoAK ${KAKAO_API_KEY}` } }
+      );
+      const data = await res.json();
+      const exactMatch = data.documents?.find(doc => 
+        doc.isbn?.replace(/ /g, "").includes(isbn.trim())
+      );
+      if (exactMatch) {
+        const book = exactMatch;
+        setTitle(book.title || "");
+        setAuthor(book.authors?.join(", ") || "");
+        setContent(book.contents || "");
+
+        // 장르 매핑
+        const categoryName = book.category_name || "";
+        if (categoryName.includes("소설")) setBookGenre("소설");
+        else if (categoryName.includes("시") || categoryName.includes("에세이")) setBookGenre("시/에세이");
+        else if (categoryName.includes("인문")) setBookGenre("인문학");
+        else if (categoryName.includes("판타지") || categoryName.includes("SF")) setBookGenre("판타지/SF");
+        else setBookGenre("실용서적");
+      } else {
+        setIsbnError("해당 ISBN의 도서를 찾을 수 없습니다.");
+      }
+    } catch (e) {
+      setIsbnError("검색 중 오류가 발생했습니다. API 키를 확인해주세요.");
+    }
+    setIsbnLoading(false);
+  };
 
   const handleLocalImageChange = (e) => {
     const file = e.target.files[0];
@@ -255,6 +295,31 @@ export default function BookForm({
         
         <div style={{ flex: "1.5", display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           
+          {/* ISBN 자동 입력 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "12px", color: "#666", fontWeight: "bold" }}>🔍 ISBN으로 자동 불러오기</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="text"
+                placeholder="ISBN 13자리를 입력하세요 (예: 9791234567890)"
+                value={isbn}
+                onChange={(e) => { setIsbn(e.target.value); setIsbnError(""); }}
+                onKeyDown={(e) => e.key === "Enter" && handleIsbnSearch()}
+                disabled={!!tempPreviewImage || isbnLoading}
+                style={{ flex: 1, padding: "10px", boxSizing: "border-box", borderRadius: "6px", border: "1px solid #ccc", fontSize: "13px", background: tempPreviewImage ? "#f5f5f5" : "#fff" }}
+              />
+              <button
+                type="button"
+                onClick={handleIsbnSearch}
+                disabled={!!tempPreviewImage || isbnLoading || !isbn.trim()}
+                style={{ padding: "10px 16px", background: isbnLoading ? "#aaa" : "#ffa042", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "13px", whiteSpace: "nowrap" }}
+              >
+                {isbnLoading ? "검색 중..." : "자동 입력"}
+              </button>
+            </div>
+            {isbnError && <p style={{ margin: 0, fontSize: "12px", color: "#ef4444" }}>{isbnError}</p>}
+          </div>
+
           {/* 제목 & 저자 */}
           <div style={{ display: "flex", gap: "12px" }}>
             <div style={{ flex: 2, display: "flex", flexDirection: "column", gap: "5px" }}>
