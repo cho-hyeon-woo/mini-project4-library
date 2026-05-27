@@ -2,6 +2,7 @@
 //2. npm run dev로 vite 페이지 실행
 //3. npm install json-server@0.17.4로 json서버 의존성 설치
 //4. npx json-server --watch db.json으로 json 서버 실행
+//5. npm install react-toastify react-dropzone lucide-react motion으로 UI 라이브러리 의존성 설치
 
 /* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
  * - json-server 및 OpenAI Image API 연동 및 제어
@@ -9,6 +10,8 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { BookOpen, UserRound } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
@@ -295,40 +298,77 @@ export default function App() {
                 </div>
               </div>
               <div ref={recommendDetailRef}>
-                {selectedBook && detailViewSource === "recommend" && (
-                  <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
-                )}
+                <AnimatePresence mode="wait">
+                  {selectedBook && detailViewSource === "recommend" && (
+                    <motion.div
+                      key={`recommend-${selectedBook.id}`}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                    >
+                      <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </section>
           )}
 
           {/* 하단 도서 목록 영역 */}
           <section className="book-list-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
+            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              <BookOpen size={19} aria-hidden="true" />
+              도서 목록 ({filteredBooks.length}권)
+            </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
               {filteredBooks.map((book) => (
-                <div 
+                <motion.div 
                   key={book.id} 
                   className="book-card"
                   onClick={() => handleOpenDetail(book, "list")}
                   style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", transition: "transform 0.2s", boxSizing: "border-box" }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
                 >
                   <div style={{ width: "100%", height: "160px", background: "#f5f5f5", borderRadius: "4px", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ddd", overflow: "hidden" }}>
                     {book.coverImageUrl ? <img src={book.coverImageUrl} alt={book.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ fontSize: "11px", color: "#999" }}>{book.title}</div>}
                   </div>
-                  <strong style={{ display: "block", fontSize: "13px", marginBottom: "8px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", color: "#333" }}>{book.title}</strong>
+                  <strong style={{ 
+                    display: "block", 
+                    width: "100%",              
+                    maxWidth: "160px",          
+                    fontSize: "13px", 
+                    marginBottom: "8px", 
+                    textOverflow: "ellipsis", 
+                    overflow: "hidden", 
+                    whiteSpace: "nowrap", 
+                    color: "#333",
+                    margin: "0 auto 8px auto"   
+                  }}>
+                    {book.title}
+                  </strong>
                   <span style={{ fontSize: "11px", color: "#999" }}>{book.author}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
             {filteredBooks.length === 0 && <p style={{ textAlign: "center", color: "#999", margin: "40px 0" }}>검색된 도서가 없습니다.</p>}
             
             <div ref={listDetailRef}>
-              {selectedBook && detailViewSource === "list" && (
-                <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
-              )}
+              <AnimatePresence mode="wait">
+                {selectedBook && detailViewSource === "list" && (
+                  <motion.div
+                    key={`list-${selectedBook.id}`}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                  >
+                    <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </section>
 
@@ -354,7 +394,10 @@ export default function App() {
       {/* 마이 페이지 화면 */}
       {currentMenu === "mypage" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-          <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold" }}>👤 마이 페이지 (작가 전용 관리실)</h3>
+          <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+            <UserRound size={21} aria-hidden="true" />
+            마이 페이지 (작가 전용 관리실)
+          </h3>
           
           <BookDetail 
             selectedBook={selectedBook} 
