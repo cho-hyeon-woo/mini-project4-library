@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import { Check, Brush } from "lucide-react";
 
 export default function BookForm({
   title, setTitle,
@@ -376,15 +377,46 @@ export default function BookForm({
 
           {/* 이미지 미확정 상태일 때 하단 액션 버튼 */}
           {!tempPreviewImage && (
-            <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
-              <button type="submit" style={{ flex: 2, padding: "12px", background: "#007bff", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "15px" }}>
-                {apiKey.trim() ? "🪄 표지 이미지 미리보기 생성" : "🚀 도서 바로 등록하기"}
-              </button>
-              <button type="button" onClick={onCancel} style={{ flex: 1, padding: "12px", background: "#6c757d", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "15px" }}>
-                취소
-              </button>
-            </div>
-          )}
+  <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
+    <button 
+      type="submit" 
+      style={{ 
+        flex: 2, 
+        padding: "12px", 
+        background: "#007bff", 
+        color: "#fff", 
+        border: "none", 
+        borderRadius: "6px", 
+        cursor: "pointer", 
+        fontWeight: "bold", 
+        fontSize: "15px",
+        // 💡 아이콘과 글자를 정중앙에 나란히 정렬하기 위한 스타일 추가
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}
+    >
+      {apiKey.trim() ? (
+        <>
+          <Brush size={18} style={{ marginRight: "6px" }} />
+          표지 이미지 생성
+        </>
+      ) : (
+        <>
+          <Check size={18} style={{ marginRight: "6px" }} />
+          도서 바로 등록하기
+        </>
+      )}
+    </button>
+    <button 
+      type="button" 
+      onClick={onCancel} 
+      style={{ flex: 1, padding: "12px", background: "#6c757d", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "15px" }}
+    >
+      취소
+    </button>
+  </div>
+)}
 
         </div>
       </form>
