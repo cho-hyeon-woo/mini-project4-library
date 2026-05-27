@@ -1,10 +1,12 @@
 import { useState } from "react";
 
+import { BookPlus, Home, Search, UserRound } from "lucide-react";
+
 export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery }) {
   const menuItems = [
-    { id: "home", label: "홈" },
-    { id: "register", label: "도서 등록하기" },
-    { id: "mypage", label: "마이 페이지" },
+    { id: "home", label: "홈", Icon: Home },
+    { id: "register", label: "도서 등록하기", Icon: BookPlus },
+    { id: "mypage", label: "마이 페이지", Icon: UserRound },
   ];
 
   // 1. 최상단 배너 내 마우스 실시간 좌표 상태
@@ -103,11 +105,11 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
           color: "#fff",
           cursor: "pointer",
           fontSize: "16px",
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
           justifyContent: "center"
         }}>
-          🔍
+          <Search size={18} strokeWidth={2.2} aria-hidden="true" />
         </button>
       </div>
 
@@ -117,6 +119,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
           const isActive = currentMenu === item.id;
           const isMenuHovered = hoveredMenu === item.id;
           
+          const { Icon } = item;
           return (
             <button
               key={item.id}
@@ -135,9 +138,14 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
                 fontWeight: "bold",
                 cursor: "pointer",
                 boxShadow: isActive ? "0 4px 8px rgba(234,88,12,0.15)" : "none",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
               }}
             >
+              <Icon size={19} strokeWidth={2.1} aria-hidden="true" />
               {item.label}
             </button>
           );

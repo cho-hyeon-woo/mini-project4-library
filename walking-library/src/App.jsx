@@ -2,6 +2,7 @@
 //2. npm run dev로 vite 페이지 실행
 //3. npm install json-server@0.17.4로 json서버 의존성 설치
 //4. npx json-server --watch db.json으로 json 서버 실행
+//5. npm install react-toastify react-dropzone lucide-react로 UI 라이브러리 의존성 설치
 
 /* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
  * - json-server 및 OpenAI Image API 연동 및 제어
@@ -9,6 +10,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { BookOpen, UserRound } from "lucide-react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
@@ -304,7 +306,10 @@ export default function App() {
 
           {/* 하단 도서 목록 영역 */}
           <section className="book-list-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
+            <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              <BookOpen size={19} aria-hidden="true" />
+              도서 목록 ({filteredBooks.length}권)
+            </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
               {filteredBooks.map((book) => (
                 <div 
@@ -354,7 +359,10 @@ export default function App() {
       {/* 마이 페이지 화면 */}
       {currentMenu === "mypage" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-          <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold" }}>👤 마이 페이지 (작가 전용 관리실)</h3>
+          <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+            <UserRound size={21} aria-hidden="true" />
+            마이 페이지 (작가 전용 관리실)
+          </h3>
           
           <BookDetail 
             selectedBook={selectedBook} 
