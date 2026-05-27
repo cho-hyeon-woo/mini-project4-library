@@ -323,7 +323,20 @@ export default function App() {
                   <div style={{ width: "100%", height: "160px", background: "#f5f5f5", borderRadius: "4px", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ddd", overflow: "hidden" }}>
                     {book.coverImageUrl ? <img src={book.coverImageUrl} alt={book.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ fontSize: "11px", color: "#999" }}>{book.title}</div>}
                   </div>
-                  <strong style={{ display: "block", fontSize: "13px", marginBottom: "8px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", color: "#333" }}>{book.title}</strong>
+                  <strong style={{ 
+                    display: "block", 
+                    width: "100%",              
+                    maxWidth: "160px",          
+                    fontSize: "13px", 
+                    marginBottom: "8px", 
+                    textOverflow: "ellipsis", 
+                    overflow: "hidden", 
+                    whiteSpace: "nowrap", 
+                    color: "#333",
+                    margin: "0 auto 8px auto"   
+                  }}>
+                    {book.title}
+                  </strong>
                   <span style={{ fontSize: "11px", color: "#999" }}>{book.author}</span>
                 </div>
               ))}

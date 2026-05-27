@@ -524,7 +524,7 @@ export default function BookForm({
               줄거리 요약 (본문 내용)
             </label>
             <textarea
-              placeholder="책의 줄거리를 입력하세요. 표지 생성의 근간 정보가 됩니다."
+              placeholder="책의 줄거리를 입력하세요. 표지 생성의 베이스가 됩니다."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               disabled={!!tempPreviewImage}
