@@ -71,6 +71,7 @@ mini-project4-library/
 # 의존성 설치
 cd walking-library
 npm install
+# UI 라이브러리 의존성 설치
 npm install react-toastify react-dropzone lucide-react motion
 ```
 
