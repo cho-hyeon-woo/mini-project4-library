@@ -16,6 +16,7 @@ import {
   Trash2,
   X
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useDropzone } from "react-dropzone";
 
 export default function BookForm({
@@ -91,8 +92,14 @@ export default function BookForm({
     }}>
       
       {/* 이미지 생성 중 반투명 필터,취소 버튼 */}
+      <AnimatePresence>
       {isGenerating && (
-        <div style={{
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          style={{
           position: "absolute",
           top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0, 0, 0, 0.65)",
@@ -105,18 +112,26 @@ export default function BookForm({
           color: "#fff",
           textAlign: "center"
         }}>
-          <div style={{ fontSize: "40px", marginBottom: "15px" }}>⏳</div>
+          <motion.div
+            animate={{ opacity: [0.55, 1, 0.55], scale: [0.98, 1.04, 0.98] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+            style={{ fontSize: "40px", marginBottom: "15px" }}
+          >
+            ⏳
+          </motion.div>
           <p style={{ fontSize: "18px", fontWeight: "bold", margin: "0 0 10px 0" }}>이미지 생성 후 등록됩니다.</p>
           <p style={{ fontSize: "13px", color: "#ccc", margin: "0 0 20px 0" }}>잠시만 기다려주세요...</p>
-          <button 
+          <motion.button 
             type="button"
             onClick={onCancelGeneration}
+            whileTap={{ scale: 0.96 }}
             style={{ padding: "10px 24px", background: "#dc3545", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" }}
           >
             🛑 생성 취소하기
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       <h3 style={{ marginTop: 0, textAlign: "center", marginBottom: "25px", color: "#333", fontSize: "22px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
         {isEditing ? <FilePenLine size={23} aria-hidden="true" /> : <PenLine size={23} aria-hidden="true" />}
@@ -181,8 +196,10 @@ export default function BookForm({
                 </span>
               </label>
               
-              <div
+              <motion.div
                 {...getRootProps()}
+                animate={{ scale: isDragActive ? 1.01 : 1 }}
+                transition={{ type: "spring", stiffness: 380, damping: 28 }}
                 style={{
                   width: "100%",
                   minHeight: "170px",
@@ -201,13 +218,18 @@ export default function BookForm({
               >
                 <input {...getInputProps()} />
                 {localPreview ? (
-                  <div style={{ width: "100%", height: "138px", overflow: "hidden", borderRadius: "6px", background: "#fff" }}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.18 }}
+                    style={{ width: "100%", height: "138px", overflow: "hidden", borderRadius: "6px", background: "#fff" }}
+                  >
                     <img 
                       src={localPreview} 
                       alt="업로드 이미지 미리보기" 
                       style={{ width: "100%", height: "100%", objectFit: "contain" }} 
                     />
-                  </div>
+                  </motion.div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", textAlign: "center" }}>
                     <ImageUp size={34} color="#94a3b8" aria-hidden="true" />
@@ -217,7 +239,7 @@ export default function BookForm({
                     <span style={{ fontSize: "11px", color: "#94a3b8" }}>PNG, JPG, WEBP 이미지 파일</span>
                   </div>
                 )}
-              </div>
+              </motion.div>
               {fileRejections.length > 0 && (
                 <p style={{ margin: "0 0 8px 0", fontSize: "11px", color: "#dc3545" }}>
                   이미지 파일만 업로드할 수 있습니다.
