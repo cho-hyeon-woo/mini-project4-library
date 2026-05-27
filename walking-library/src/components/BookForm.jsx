@@ -4,7 +4,8 @@
  * - 생성 완료 시 '최종 등록 / 다시 생성 / 취소' 3버튼 노출
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 export default function BookForm({
   title, setTitle,
@@ -20,18 +21,49 @@ export default function BookForm({
   isEditing, onSave, onFinalSave, onCancel,
   isGenerating, onCancelGeneration,
   tempPreviewImage, setTempPreviewImage,
-  localImageBase64, setLocalImageBase64
+  setLocalImageBase64
 }) {
   const [localPreview, setLocalPreview] = useState(null);
 
-  const handleLocalImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setLocalPreview(URL.createObjectURL(file));
-      const reader = new FileReader();
-      reader.onloadend = () => setLocalImageBase64(reader.result);
-      reader.readAsDataURL(file);
-    }
+  const handleLocalImageFile = useCallback((file) => {
+    if (!file) return;
+
+    setLocalPreview((previousPreview) => {
+      if (previousPreview) URL.revokeObjectURL(previousPreview);
+      return URL.createObjectURL(file);
+    });
+
+    const reader = new FileReader();
+    reader.onloadend = () => setLocalImageBase64(reader.result);
+    reader.readAsDataURL(file);
+  }, [setLocalImageBase64]);
+
+  const handleDrop = useCallback((acceptedFiles) => {
+    handleLocalImageFile(acceptedFiles[0]);
+  }, [handleLocalImageFile]);
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isFocused,
+    fileRejections
+  } = useDropzone({
+    onDrop: handleDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
+
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
+
+  const handleClearLocalImage = () => {
+    if (localPreview) URL.revokeObjectURL(localPreview);
+    setLocalPreview(null);
+    setLocalImageBase64("");
   };
 
   return (
@@ -118,7 +150,7 @@ export default function BookForm({
           {!tempPreviewImage && (
             <div style={{ 
               width: "100%", 
-              height: "250px", 
+              minHeight: "300px", 
               border: "1px solid #ddd", 
               borderRadius: "8px", 
               padding: "15px", 
@@ -126,43 +158,60 @@ export default function BookForm({
               boxSizing: "border-box",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center"
+              alignItems: "center",
+              gap: "10px"
             }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "bold", color: "#555", marginBottom: "8px" }}>
-                🖼️ 원하는 도서 이미지 콘티 업로드하시면 콘티를 바탕으로 이미지 생성합니다! 
+              <label style={{ display: "block", fontSize: "13px", fontWeight: "bold", color: "#555", marginBottom: "2px", textAlign: "center", lineHeight: "1.5" }}>
+                🖼️ 원하는 도서 이미지 콘티 업로드하시면<br />
+                콘티를 바탕으로 이미지 생성합니다! 
               </label>
               
-              {localPreview ? (
-                <div style={{ width: "100%", height: "100px", overflow: "hidden", borderRadius: "4px", marginBottom: "8px" }}>
-                  <img 
-                    src={localPreview} 
-                    alt="콘티 미리보기" 
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }} 
-                  />
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "40px" }}>🖼️</span>
-                  <p style={{ margin: 5, fontSize: "13px", color: "#777", fontWeight: "500" }}>
-                    파일을 업로드해주세요.
-                  </p>
-                </div>
+              <div
+                {...getRootProps()}
+                style={{
+                  width: "100%",
+                  minHeight: "170px",
+                  border: isDragActive || isFocused ? "2px dashed #ffa042" : "2px dashed #cbd5e1",
+                  borderRadius: "8px",
+                  background: isDragActive ? "#fff7ed" : "#f8fafc",
+                  boxSizing: "border-box",
+                  padding: "14px",
+                  marginBottom: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "border-color 0.2s ease, background 0.2s ease"
+                }}
+              >
+                <input {...getInputProps()} />
+                {localPreview ? (
+                  <div style={{ width: "100%", height: "138px", overflow: "hidden", borderRadius: "6px", background: "#fff" }}>
+                    <img 
+                      src={localPreview} 
+                      alt="업로드 이미지 미리보기" 
+                      style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                    />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", textAlign: "center" }}>
+                    <span style={{ fontSize: "34px" }}>이미지</span>
+                    <strong style={{ fontSize: "13px", color: "#334155" }}>
+                      {isDragActive ? "이미지를 여기에 놓아주세요" : "이미지를 드래그하거나 클릭해 업로드"}
+                    </strong>
+                    <span style={{ fontSize: "11px", color: "#94a3b8" }}>PNG, JPG, WEBP 이미지 파일</span>
+                  </div>
+                )}
+              </div>
+              {fileRejections.length > 0 && (
+                <p style={{ margin: "0 0 8px 0", fontSize: "11px", color: "#dc3545" }}>
+                  이미지 파일만 업로드할 수 있습니다.
+                </p>
               )}
-
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleLocalImageChange} 
-                value={localPreview ? undefined : ""} 
-                style={{ fontSize: "13px", width: "100%", marginBottom: "8px" }} 
-              />
                 {localPreview && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setLocalPreview(null);
-                      setLocalImageBase64("");
-                    }}
+                    onClick={handleClearLocalImage}
                     style={{
                       padding: "6px 14px",
                       background: "#dc3545",
@@ -176,7 +225,7 @@ export default function BookForm({
                       width: "100%"
                     }}
                   >
-                    🗑️ 파일 삭제
+                    파일 삭제
                   </button>
                 )}
             </div>
@@ -322,8 +371,8 @@ export default function BookForm({
                   <label style={{ fontSize: "12px", color: "#444" }}>이미지 품질</label>
                   <select value={imageQuality} onChange={(e) => setImageQuality(e.target.value)} disabled={!!tempPreviewImage} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="low">low (빠른 생성)</option>
-                    <option value="medium">medium (고화질)</option>medium
-                    <option value="high">high (일반)</option>high
+                    <option value="medium">medium (일반)</option>medium
+                    <option value="high">high (고화질)</option>high
                   </select>
                 </div>
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
