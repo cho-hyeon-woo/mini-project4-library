@@ -132,5 +132,7 @@ npm run dev
 | 도서 장르 | 실용서적, 소설, 시/에세이, 인문학, 판타지/SF |
 | 표지 스타일 | 미니멀, 일러스트, 수채화, 사이버펑크, 클래식 |
 
+---
+
 ## GitHub
 → https://github.com/cho-hyeon-woo/mini-project4-library
