@@ -76,7 +76,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
       </div>
 
       {/* 2. 도서 검색바 */}
-      <div style={{ display: "flex", marginBottom: "20px", width: "100%" }}>
+      <div className="search-row" style={{ display: "flex", marginBottom: "20px", width: "100%" }}>
         <input 
           type="text" 
           placeholder="도서 검색하기" 
@@ -94,7 +94,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
             background: "#fff"
           }}
         />
-        <button style={{
+        <button className="search-button" style={{
           padding: "0 25px",
           background: "linear-gradient(135deg, #ffa042 0%, #f97316 100%)", 
           border: "none",
@@ -120,6 +120,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
           return (
             <button
               key={item.id}
+              className="nav-tab"
               onClick={() => onMenuChange(item.id)}
               onMouseEnter={() => setHoveredMenu(item.id)}
               onMouseLeave={() => setHoveredMenu(null)}

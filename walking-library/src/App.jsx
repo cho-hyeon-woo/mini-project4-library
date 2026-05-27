@@ -1,8 +1,7 @@
 //1.npm install로 의존성 설치
 //2. npm run dev로 vite 페이지 실행
-//3. walking-library 폴더 안에서 다음 내용 실행
-//4. npm install json-server@0.17.4로 json서버 의존성 설치
-//5. npx json-server --watch db.json으로 json 서버 실행
+//3. npm install json-server@0.17.4로 json서버 의존성 설치
+//4. npx json-server --watch db.json으로 json 서버 실행
 
 /* - 상태 관리 (메뉴 탭, 도서 목록 데이터, AI API 세팅 변수, 검색어 등)
  * - json-server 및 OpenAI Image API 연동 및 제어
@@ -10,9 +9,11 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookDetail from "./components/BookDetail";
+import "react-toastify/dist/ReactToastify.css";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
 
@@ -83,6 +84,7 @@ export default function App() {
   const fetchBooks = async () => {
     try {
       const res = await fetch(dbAddress);
+      if (!res.ok) throw new Error("도서 목록을 불러오지 못했습니다.");
       const data = await res.json();
       setBooks(data);
       
@@ -101,15 +103,16 @@ export default function App() {
 
   const handleInitiatePreview = async () => {
     if (!title.trim() || !author.trim() || !content.trim()) {
-      alert("모든 필수 항목을 기입해 주세요.");
+      toast.warning("모든 필수 항목을 기입해 주세요.");
       return;
     }
 
     if (!apiKey.trim()) {
       if (localImageBase64) {
         setTempPreviewImage(localImageBase64);
+        toast.info("업로드한 이미지로 표지 미리보기를 준비했습니다.");
       } else {
-        alert("AI 표지를 생성하기 위한 OpenAI API Key를 입력하거나,\n좌측 하단에서 직접 업로드할 이미지 파일을 선택해 주세요!");
+        toast.warning("OpenAI API Key를 입력하거나 표지 이미지를 업로드해 주세요.");
       }
       return;
     }
@@ -119,7 +122,47 @@ export default function App() {
     abortControllerRef.current = controller;
 
     try {
-      const prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle);
+      let prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle);
+      if (localImageBase64) {
+        const pureBase64 = localImageBase64.split(",")[1];
+        const visionRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { 
+                  type: "text", 
+                  text: "Analyze this rough sketch/storyboard for a book cover. Describe its layout, composition, subject placement, and implied framing in English so that DALL-E 3 can replicate this exact composition. Keep it concise." 
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:image/jpeg;base64,${pureBase64}`
+                  }
+                }
+              ]
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
+
+      if (visionRes.ok) {
+        const visionData = await visionRes.json();
+        const sketchDescription = visionData.choices?.[0]?.message?.content;
+        
+        if (sketchDescription) {
+          prompt += `\n\n[CRITICAL COMPOSITION GUIDE]: Replicate the exact composition and layout described here: ${sketchDescription}`;
+        }
+      }
+    }
       const openAiRes = await fetch(OPENAI_IMAGE_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey.trim()}` },
@@ -134,11 +177,13 @@ export default function App() {
       if (!b64Json) throw new Error("이미지 본문이 누락되었습니다.");
 
       setTempPreviewImage(`data:image/${outputFormat};base64,${b64Json}`);
+      toast.success("표지 미리보기가 생성되었습니다.");
     } catch (err) {
       if (err.name === 'AbortError') {
         console.log("이미지 생성 취소됨");
+        toast.info("이미지 생성을 취소했습니다.");
       } else {
-        alert(`에러: ${err.message}`);
+        toast.error(`표지 생성 실패: ${err.message}`);
       }
     } finally {
       setIsGeneratingCover(false);
@@ -152,6 +197,7 @@ export default function App() {
 
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
+    const wasEditing = isEditing;
     const payload = {
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
@@ -161,35 +207,44 @@ export default function App() {
 
     try {
       if (isEditing) {
-        await fetch(`${dbAddress}/${selectedBook.id}`, {
+        const res = await fetch(`${dbAddress}/${selectedBook.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...selectedBook, ...payload }),
         });
+        if (!res.ok) throw new Error("도서 수정 요청에 실패했습니다.");
         setIsEditing(false);
       } else {
-        await fetch(dbAddress, {
+        const res = await fetch(dbAddress, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...payload, createdAt: nowISO }),
         });
+        if (!res.ok) throw new Error("도서 등록 요청에 실패했습니다.");
       }
 
       setTitle(""); setAuthor(""); setContent(""); setSelectedBook(null);
       setTempPreviewImage(""); setLocalImageBase64(""); handleCloseDetail();
       fetchBooks();
       setCurrentMenu("home");
+      toast.success(wasEditing ? "도서 정보가 수정되었습니다." : "도서가 등록되었습니다.");
     } catch (err) {
-      alert("도서 저장에 실패했습니다.");
+      toast.error(err.message || "도서 저장에 실패했습니다.");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("정말 이 책을 삭제하시겠습니까?")) {
-      await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
-      setSelectedBook(null); setDetailViewSource(null);
-      if (randomBook?.id === id) setRandomBook(null);
-      fetchBooks();
+      try {
+        const res = await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("도서 삭제 요청에 실패했습니다.");
+        setSelectedBook(null); setDetailViewSource(null);
+        if (randomBook?.id === id) setRandomBook(null);
+        fetchBooks();
+        toast.success("도서가 삭제되었습니다.");
+      } catch (err) {
+        toast.error(err.message || "도서 삭제에 실패했습니다.");
+      }
     }
   };
 
@@ -216,7 +271,8 @@ export default function App() {
   };
 
   return (
-    <div style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
+    <>
+    <div className="app-shell" style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
       <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       
       {/* 홈 화면 */}
@@ -225,7 +281,7 @@ export default function App() {
           
           {/*  이 달의 추천 도서*/}
           {randomBook && !searchQuery && (
-            <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
+            <section className="recommend-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
               <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
               <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
                 <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb" }}>
@@ -235,7 +291,7 @@ export default function App() {
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
                   <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>{randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span></p>
                   <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
-                  <span style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
+                  <span className="detail-link" style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
                 </div>
               </div>
               <div ref={recommendDetailRef}>
@@ -247,12 +303,13 @@ export default function App() {
           )}
 
           {/* 하단 도서 목록 영역 */}
-          <section style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
+          <section className="book-list-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
             <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center" }}>📖 도서 목록 ({filteredBooks.length}권)</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
               {filteredBooks.map((book) => (
                 <div 
                   key={book.id} 
+                  className="book-card"
                   onClick={() => handleOpenDetail(book, "list")}
                   style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", transition: "transform 0.2s", boxSizing: "border-box" }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
@@ -312,5 +369,19 @@ export default function App() {
         </div>
       )}
     </div>
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+      transition={Bounce}
+      limit={3}
+    />
+    </>
   );
 }
