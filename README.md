@@ -71,6 +71,7 @@ mini-project4-library/
 # 의존성 설치
 cd walking-library
 npm install
+npm install react-toastify react-dropzone lucide-react motion
 ```
 
 이후 **터미널 2개**를 열어 각각 실행합니다.
