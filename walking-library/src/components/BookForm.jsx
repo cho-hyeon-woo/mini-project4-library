@@ -1,7 +1,6 @@
 /* - 좌측: AI 표지 생성 이미지 실시간 미리보기 피드백 및 로컬 이미지 파일 업로드 연동
  * - 우측: 도서 메타데이터(제목, 작가, 줄거리) 및 OpenAI API (모델, 해상도, 장르 등) 설정 폼
- * - 이미지 생성 중 가림막 활성화 및 생성 취소 기능 매칭
- * - 생성 완료 시 '최종 등록 / 다시 생성 / 취소' 3버튼 노출
+ * - 알라딘 API 연동: 도서명 검색 및 선택 리스트 드롭다운 제공
  */
 
 import { useCallback, useEffect, useState } from "react";
@@ -18,6 +17,9 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useDropzone } from "react-dropzone";
+
+// 발급받으신 알라딘 TTBKey를 여기에 입력하세요.
+const ALADIN_TTB_KEY = "ttbyh9909201128001"; 
 
 export default function BookForm({
   title, setTitle,
@@ -36,6 +38,57 @@ export default function BookForm({
   setLocalImageBase64
 }) {
   const [localPreview, setLocalPreview] = useState(null);
+  
+  // 이름 검색을 위한 상태 관리
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+  // 🔍 알라딘 도서명 기반 검색 함수
+  const handleTitleSearch = async () => {
+    if (!searchTitle.trim()) return;
+    setIsSearching(true);
+    setSearchError("");
+    setSearchResults([]);
+
+    try {
+      // 프록시 설정이 되어있다고 가정한 호출 URL입니다. (/aladin-api)
+      const url = `/aladin-api/ttb/api/ItemSearch.aspx?ttbkey=${ALADIN_TTB_KEY}&Query=${encodeURIComponent(searchTitle.trim())}&QueryType=Title&MaxResults=10&start=1&SearchTarget=Book&output=js&Version=20131101`;
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.item && data.item.length > 0) {
+        setSearchResults(data.item);
+      } else {
+        setSearchError("검색 결과가 없습니다. 도서명을 다시 확인해 주세요.");
+      }
+    } catch (e) {
+      setSearchError("검색 중 오류가 발생했습니다. (CORS 문제이거나 API 키를 확인해주세요)");
+      console.error(e);
+    }
+    setIsSearching(false);
+  };
+
+  // 🖱️ 목록에서 도서를 선택했을 때 데이터 매핑 함수
+  const handleSelectBook = (book) => {
+    setTitle(book.title || "");
+    setAuthor(book.author || "");
+    setContent(book.description || "");
+
+    // 장르 매핑 로직
+    const categoryName = book.categoryName || "";
+    if (categoryName.includes("소설")) setBookGenre("소설");
+    else if (categoryName.includes("시") || categoryName.includes("에세이")) setBookGenre("시/에세이");
+    else if (categoryName.includes("인문")) setBookGenre("인문학");
+    else if (categoryName.includes("판타지") || categoryName.includes("SF")) setBookGenre("판타지/SF");
+    else setBookGenre("실용서적");
+
+    // 초기화 및 리스트 닫기
+    setSearchResults([]);
+    setSearchTitle("");
+  };
 
   const handleLocalImageFile = useCallback((file) => {
     if (!file) return;
@@ -140,7 +193,7 @@ export default function BookForm({
 
       <form onSubmit={(e) => { e.preventDefault(); onSave(); }} style={{ display: "flex", gap: "25px", width: "100%", alignItems: "flex-start" }}>
         
-        {/* ◀ 좌측 영역: 이미지 가이드 박스 (생성 완료 시 미리보기 및 제어 버튼으로 가변 변경) */}
+        {/* ◀ 좌측 영역: 이미지 가이드 박스 */}
         <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "15px", minWidth: "320px" }}>
           
           <div style={{
@@ -158,7 +211,6 @@ export default function BookForm({
             textAlign: "center",
             overflow: "hidden"
           }}>
-            {/* AI 이미지 생성 완료 혹은 로컬 파일이 있을 때 검토*/}
             {tempPreviewImage ? (
               <img src={tempPreviewImage} alt="표지 미리보기" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ):(
@@ -173,7 +225,6 @@ export default function BookForm({
             )}
           </div>
 
-          {/*미리보기 이미지가 없을 때만 일반 파일 선택 창 노출 */}
           {!tempPreviewImage && (
             <div style={{ 
               width: "100%", 
@@ -278,78 +329,105 @@ export default function BookForm({
                 표지 매칭 완료! 등록하시겠습니까?
               </p>
               <div style={{ display: "flex", gap: "8px" }}>
-                
-                {/* 1. 최종 등록 버튼 (비율을 1로 맞춰 균등 분할했습니다) */}
                 <button 
                   type="button" 
                   onClick={onFinalSave} 
-                  style={{ 
-                    flex: 1, 
-                    padding: "10px 0", 
-                    background: "#28a745", 
-                    color: "#fff", 
-                    border: "none", 
-                    borderRadius: "4px", 
-                    cursor: "pointer", 
-                    fontWeight: "bold", 
-                    fontSize: "12px", 
-                    whiteSpace: "nowrap"
-                  }}
+                  style={{ flex: 1, padding: "10px 0", background: "#28a745", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "12px", whiteSpace: "nowrap" }}
                 >
                   ✅ 최종 등록
                 </button>
-
                 {apiKey.trim() && (
                   <button 
                     type="button" 
                     onClick={onSave} 
-                    style={{ 
-                      flex: 1, 
-                      padding: "10px 0", 
-                      background: "#ffa042", 
-                      color: "#fff", 
-                      border: "none", 
-                      borderRadius: "4px", 
-                      cursor: "pointer", 
-                      fontWeight: "bold", 
-                      fontSize: "12px",
-                      whiteSpace: "nowrap"
-                    }}
+                    style={{ flex: 1, padding: "10px 0", background: "#ffa042", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "12px", whiteSpace: "nowrap" }}
                   >
                     🔄 다시 생성
                   </button>
                 )}
-
                 <button 
                   type="button" 
                   onClick={() => setTempPreviewImage("")} 
-                  style={{ 
-                    flex: 1, 
-                    padding: "10px 0", 
-                    background: "#6c757d", 
-                    color: "#fff", 
-                    border: "none", 
-                    borderRadius: "4px", 
-                    cursor: "pointer", 
-                    fontWeight: "bold", 
-                    fontSize: "12px",
-                    whiteSpace: "nowrap"
-                  }}
+                  style={{ flex: 1, padding: "10px 0", background: "#6c757d", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "12px", whiteSpace: "nowrap" }}
                 >
                   <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
                     <X size={13} aria-hidden="true" />
                     취소
                   </span>
                 </button>
-
               </div>
             </div>
           )} 
         </div>
 
-        
+        {/* ▶ 우측 영역: 메타데이터 설정 */}
         <div style={{ flex: "1.5", display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           
+          {/* 알라딘 도서 검색 드롭다운 구역 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", position: "relative" }}>
+            <label style={{ fontSize: "12px", color: "#666", fontWeight: "bold" }}>🔍 도서명으로 검색하여 불러오기 (알라딘)</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="text"
+                placeholder="검색할 도서 제목을 입력하세요"
+                value={searchTitle}
+                onChange={(e) => { setSearchTitle(e.target.value); setSearchError(""); }}
+                onKeyDown={(e) => e.key === "Enter" && handleTitleSearch()}
+                disabled={!!tempPreviewImage || isSearching}
+                style={{ flex: 1, padding: "10px", boxSizing: "border-box", borderRadius: "6px", border: "1px solid #ccc", fontSize: "13px", background: tempPreviewImage ? "#f5f5f5" : "#fff" }}
+              />
+              <button
+                type="button"
+                onClick={handleTitleSearch}
+                disabled={!!tempPreviewImage || isSearching || !searchTitle.trim()}
+                style={{ padding: "10px 16px", background: isSearching ? "#aaa" : "#ffa042", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "13px", whiteSpace: "nowrap" }}
+              >
+                {isSearching ? "검색 중..." : "도서 검색"}
+              </button>
+            </div>
+            {searchError && <p style={{ margin: 0, fontSize: "12px", color: "#ef4444" }}>{searchError}</p>}
+
+            {searchResults.length > 0 && (
+              <div style={{
+                position: "absolute",
+                top: "62px",
+                left: 0,
+                right: 0,
+                background: "#fff",
+                border: "1px solid #cbd5e1",
+                borderRadius: "6px",
+                boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
+                maxHeight: "220px",
+                overflowY: "auto",
+                zIndex: 10,
+                padding: "5px 0"
+              }}>
+                {searchResults.map((book, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleSelectBook(book)}
+                    style={{
+                      padding: "10px 15px",
+                      cursor: "pointer",
+                      borderBottom: idx === searchResults.length - 1 ? "none" : "1px solid #f1f5f9",
+                      fontSize: "13px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "2px"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "#eff6ff"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
+                  >
+                    <strong style={{ color: "#1e293b", fontSize: "13px" }}>{book.title}</strong>
+                    <span style={{ fontSize: "11px", color: "#64748b" }}>
+                      ✍️ 저자: {book.author || "미상"} {book.publisher && `| 출판사: ${book.publisher}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* 제목 & 저자 */}
           <div style={{ display: "flex", gap: "12px" }}>
             <div style={{ flex: 2, display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -376,7 +454,7 @@ export default function BookForm({
             </div>
           </div>
 
-          {/* OpenAI 상세 설정*/}
+          {/* OpenAI 상세 설정 */}
           <fieldset style={{ border: "1px solid #007bff", borderRadius: "8px", padding: "15px", background: "#f7faff", margin: 0 }}>
             <legend style={{ color: "#007bff", fontWeight: "bold", fontSize: "13px", padding: "0 6px" }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
@@ -422,8 +500,8 @@ export default function BookForm({
                   <label style={{ fontSize: "12px", color: "#444" }}>이미지 품질</label>
                   <select value={imageQuality} onChange={(e) => setImageQuality(e.target.value)} disabled={!!tempPreviewImage} style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="low">low (빠른 생성)</option>
-                    <option value="medium">medium (일반)</option>medium
-                    <option value="high">high (고화질)</option>high
+                    <option value="medium">medium (일반)</option>
+                    <option value="high">high (고화질)</option>
                   </select>
                 </div>
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -477,7 +555,6 @@ export default function BookForm({
             />
           </div>
 
-          {/* 이미지 미확정 상태일 때 하단 액션 버튼 */}
           {!tempPreviewImage && (
             <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
               <button type="submit" style={{ flex: 2, padding: "12px", background: "#007bff", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "15px" }}>
