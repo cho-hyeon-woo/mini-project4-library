@@ -1,10 +1,12 @@
 /* 헤더*/
 
+import { BookPlus, Home, Search, UserRound } from "lucide-react";
+
 export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery }) {
   const menuItems = [
-    { id: "home", label: "홈" },
-    { id: "register", label: "도서 등록하기" },
-    { id: "mypage", label: "마이 페이지" },
+    { id: "home", label: "홈", Icon: Home },
+    { id: "register", label: "도서 등록하기", Icon: BookPlus },
+    { id: "mypage", label: "마이 페이지", Icon: UserRound },
   ];
 
   return (
@@ -47,9 +49,12 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
           borderBottomRightRadius: "6px",
           color: "#fff",
           cursor: "pointer",
-          fontSize: "16px"
+          fontSize: "16px",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center"
         }}>
-          🔍
+          <Search size={18} strokeWidth={2.2} aria-hidden="true" />
         </button>
       </div>
 
@@ -57,6 +62,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
       <nav className="nav-tabs" style={{ display: "flex", gap: "15px", width: "100%" }}>
         {menuItems.map((item) => {
           const isActive = currentMenu === item.id;
+          const { Icon } = item;
           return (
             <button
               key={item.id}
@@ -72,10 +78,15 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
                 fontSize: "18px",
                 fontWeight: "bold",
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
                 boxShadow: isActive ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
                 transition: "all 0.2s"
               }}
             >
+              <Icon size={19} strokeWidth={2.1} aria-hidden="true" />
               {item.label}
             </button>
           );

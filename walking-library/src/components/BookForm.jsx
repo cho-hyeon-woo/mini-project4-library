@@ -5,6 +5,17 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  BookOpen,
+  CheckCircle2,
+  FilePenLine,
+  Image as ImageIcon,
+  ImageUp,
+  PenLine,
+  Settings,
+  Trash2,
+  X
+} from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 export default function BookForm({
@@ -107,8 +118,9 @@ export default function BookForm({
         </div>
       )}
 
-      <h3 style={{ marginTop: 0, textAlign: "center", marginBottom: "25px", color: "#333", fontSize: "22px", fontWeight: "bold" }}>
-        {isEditing ? "📝 도서 수정하기" : "✍️ 도서 등록하기"}
+      <h3 style={{ marginTop: 0, textAlign: "center", marginBottom: "25px", color: "#333", fontSize: "22px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+        {isEditing ? <FilePenLine size={23} aria-hidden="true" /> : <PenLine size={23} aria-hidden="true" />}
+        {isEditing ? "도서 수정하기" : "도서 등록하기"}
       </h3>
 
       <form onSubmit={(e) => { e.preventDefault(); onSave(); }} style={{ display: "flex", gap: "25px", width: "100%", alignItems: "flex-start" }}>
@@ -136,7 +148,7 @@ export default function BookForm({
               <img src={tempPreviewImage} alt="표지 미리보기" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ):(
               <>
-                <span style={{ fontSize: "40px", marginBottom: "10px" }}>🖼️</span>
+                <ImageIcon size={42} color="#94a3b8" style={{ marginBottom: "10px" }} aria-hidden="true" />
                 <strong style={{ fontSize: "16px", color: "#333", marginBottom: "5px" }}>생성 이미지 표시</strong>
                 <p style={{ fontSize: "12px", color: "#777", margin: 0, lineHeight: "1.5" }}>
                   오른쪽에서 설정을 마친 후 [미리보기]를 누르면<br />
@@ -161,9 +173,12 @@ export default function BookForm({
               alignItems: "center",
               gap: "10px"
             }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: "bold", color: "#555", marginBottom: "2px", textAlign: "center", lineHeight: "1.5" }}>
-                🖼️ 원하는 도서 이미지 콘티 업로드하시면<br />
-                콘티를 바탕으로 이미지 생성합니다! 
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "13px", fontWeight: "bold", color: "#555", marginBottom: "2px", textAlign: "center", lineHeight: "1.5" }}>
+                <ImageUp size={18} aria-hidden="true" />
+                <span>
+                  원하는 도서 이미지 콘티 업로드하시면<br />
+                  콘티를 바탕으로 이미지 생성합니다!
+                </span>
               </label>
               
               <div
@@ -195,7 +210,7 @@ export default function BookForm({
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", textAlign: "center" }}>
-                    <span style={{ fontSize: "34px" }}>이미지</span>
+                    <ImageUp size={34} color="#94a3b8" aria-hidden="true" />
                     <strong style={{ fontSize: "13px", color: "#334155" }}>
                       {isDragActive ? "이미지를 여기에 놓아주세요" : "이미지를 드래그하거나 클릭해 업로드"}
                     </strong>
@@ -225,7 +240,10 @@ export default function BookForm({
                       width: "100%"
                     }}
                   >
-                    파일 삭제
+                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+                      <Trash2 size={13} aria-hidden="true" />
+                      파일 삭제
+                    </span>
                   </button>
                 )}
             </div>
@@ -233,7 +251,10 @@ export default function BookForm({
           
           {tempPreviewImage && (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", background: "#f4f9ff", padding: "15px", borderRadius: "8px", border: "1px solid #bae1ff" }}>
-              <p style={{ margin: "0 0 5px 0", fontSize: "13px", color: "#0056b3", fontWeight: "bold", textAlign: "center" }}>🎉 표지 매칭 완료! 등록하시겠습니까?</p>
+              <p style={{ margin: "0 0 5px 0", fontSize: "13px", color: "#0056b3", fontWeight: "bold", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                <CheckCircle2 size={16} aria-hidden="true" />
+                표지 매칭 완료! 등록하시겠습니까?
+              </p>
               <div style={{ display: "flex", gap: "8px" }}>
                 
                 {/* 1. 최종 등록 버튼 (비율을 1로 맞춰 균등 분할했습니다) */}
@@ -293,7 +314,10 @@ export default function BookForm({
                     whiteSpace: "nowrap"
                   }}
                 >
-                  ❌ 취소
+                  <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+                    <X size={13} aria-hidden="true" />
+                    취소
+                  </span>
                 </button>
 
               </div>
@@ -332,7 +356,12 @@ export default function BookForm({
 
           {/* OpenAI 상세 설정*/}
           <fieldset style={{ border: "1px solid #007bff", borderRadius: "8px", padding: "15px", background: "#f7faff", margin: 0 }}>
-            <legend style={{ color: "#007bff", fontWeight: "bold", fontSize: "13px", padding: "0 6px" }}>⚙️ OpenAI API & 표지 상세 설정</legend>
+            <legend style={{ color: "#007bff", fontWeight: "bold", fontSize: "13px", padding: "0 6px" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                <Settings size={14} aria-hidden="true" />
+                OpenAI API & 표지 상세 설정
+              </span>
+            </legend>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -412,7 +441,10 @@ export default function BookForm({
 
           {/* 줄거리 요약 */}
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ fontSize: "12px", color: "#666", fontWeight: "bold" }}>📖 줄거리 요약 (본문 내용)</label>
+            <label style={{ fontSize: "12px", color: "#666", fontWeight: "bold", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+              <BookOpen size={14} aria-hidden="true" />
+              줄거리 요약 (본문 내용)
+            </label>
             <textarea
               placeholder="책의 줄거리를 입력하세요. 표지 생성의 근간 정보가 됩니다."
               value={content}
