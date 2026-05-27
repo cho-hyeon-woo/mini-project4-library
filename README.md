@@ -69,10 +69,12 @@ mini-project4-library/
 
 ```bash
 # 의존성 설치
-cd walking-library
-npm install
-# UI 라이브러리 의존성 설치
-npm install react-toastify react-dropzone lucide-react motion
+1.npm install로 의존성 설치
+2. npm run dev로 vite 페이지 실행
+3. npm install json-server@0.17.4로 json서버 의존성 설치
+4. npx json-server --watch db.json으로 json 서버 실행
+5. npm install react-toastify react-dropzone lucide-react motion으로 UI 라이브러리 의존성 설치
+ 
 ```
 
 이후 **터미널 2개**를 열어 각각 실행합니다.
@@ -135,3 +137,6 @@ npm run dev
   "updatedAt": "ISO 8601"
 }
 ```
+
+## 실행 화면
+
