@@ -27,9 +27,7 @@ export default function App() {
   const listDetailRef = useRef(null);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 400);
+    const handler = setTimeout(() => setDebouncedSearchQuery(searchQuery), 400);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
@@ -45,8 +43,7 @@ export default function App() {
       const data = await res.json();
       setBooks(data);
       if (data.length > 0 && !randomBook) {
-        const randomIndex = Math.floor(Math.random() * data.length);
-        setRandomBook(data[randomIndex]);
+        setRandomBook(data[Math.floor(Math.random() * data.length)]);
       }
     } catch (err) {
       console.error("데이터 로딩 실패:", err);
@@ -148,8 +145,8 @@ export default function App() {
 
             {/* 이 달의 추천 도서 */}
             {randomBook && !searchQuery && (
-              <section className="recommend-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
-                <h3 style={{ marginTop: 0, marginBottom: "15px", textAlign: "center", color: "#444" }}>이 달의 추천 도서</h3>
+              <section className="recommend-section section-card">
+                <h3 className="section-title">이 달의 추천 도서</h3>
                 <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
                   <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb" }}>
                     {randomBook.coverImageUrl
@@ -162,7 +159,9 @@ export default function App() {
                       {randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span>
                     </p>
                     <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
-                    <span className="detail-link" style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>[자세히 보기]</span>
+                    <span className="detail-link" style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
+                      [자세히 보기]
+                    </span>
                   </div>
                 </div>
                 <div ref={recommendDetailRef}>
@@ -183,36 +182,34 @@ export default function App() {
               </section>
             )}
 
-            {/* 하단 도서 목록 영역 */}
-            <section className="book-list-section" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #ccc", borderRadius: "8px", padding: "20px", background: "#fff" }}>
-              <h3 style={{ marginTop: 0, marginBottom: "20px", color: "#444", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+            {/* 도서 목록 */}
+            <section className="book-list-section section-card">
+              <h3 className="section-title">
                 <BookOpen size={19} aria-hidden="true" />
                 도서 목록 ({filteredBooks.length}권)
               </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+              <div className="book-grid">
                 {filteredBooks.map((book) => (
                   <motion.div
                     key={book.id}
                     className="book-card"
                     onClick={() => handleOpenDetail(book, "list")}
-                    style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", transition: "transform 0.2s", boxSizing: "border-box" }}
+                    style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", boxSizing: "border-box" }}
                     whileHover={{ y: -6, scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   >
-                    <div style={{ width: "100%", height: "160px", background: "#f5f5f5", borderRadius: "4px", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ddd", overflow: "hidden" }}>
+                    <div className="book-cover-wrap">
                       {book.coverImageUrl
-                        ? <img src={book.coverImageUrl} alt={book.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <div style={{ fontSize: "11px", color: "#999" }}>{book.title}</div>}
+                        ? <img src={book.coverImageUrl} alt={book.title} />
+                        : <span className="book-cover-placeholder">{book.title}</span>}
                     </div>
-                    <strong style={{ display: "block", width: "100%", maxWidth: "160px", fontSize: "13px", marginBottom: "8px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", color: "#333", margin: "0 auto 8px auto" }}>
-                      {book.title}
-                    </strong>
-                    <span style={{ fontSize: "11px", color: "#999" }}>{book.author}</span>
+                    <strong className="book-card-title">{book.title}</strong>
+                    <span className="book-card-author">{book.author}</span>
                   </motion.div>
                 ))}
               </div>
-              {filteredBooks.length === 0 && <p style={{ textAlign: "center", color: "#999", margin: "40px 0" }}>검색된 도서가 없습니다.</p>}
+              {filteredBooks.length === 0 && <p className="book-empty">검색된 도서가 없습니다.</p>}
 
               <div ref={listDetailRef}>
                 <AnimatePresence mode="wait">
@@ -255,7 +252,7 @@ export default function App() {
           />
         )}
 
-        {/* 마이 페이지 화면 */}
+        {/* 마이 페이지 */}
         {currentMenu === "mypage" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
             <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>

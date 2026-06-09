@@ -35,174 +35,64 @@ export default function LoginPage({ onLogin, onGoRegister }) {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: "60vh",
-      width: "100%",
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "420px",
-        border: "1px solid #ccc",
-        borderRadius: "12px",
-        padding: "40px 36px",
-        background: "#fff",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-      }}>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+
         {/* 상단 로고 */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "56px",
-            height: "56px",
-            borderRadius: "50%",
-            background: "#fff7ed",
-            border: "2px solid #ffa042",
-            marginBottom: "12px",
-          }}>
+        <div className="auth-logo">
+          <div className="auth-logo-icon">
             <BookOpen size={26} color="#ffa042" />
           </div>
-          <h2 style={{ margin: "0 0 4px 0", fontSize: "22px", color: "#333", fontWeight: "bold" }}>
-            Walking Library
-          </h2>
-          <p style={{ margin: 0, fontSize: "13px", color: "#888" }}>책과 산책하는 시간</p>
+          <h2>Walking Library</h2>
+          <p>책과 산책하는 시간</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* 아이디 */}
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: "600", color: "#555" }}>
-              아이디
-            </label>
+          <div className="form-group">
+            <label className="form-label">아이디</label>
             <input
               type="text"
+              className="form-input"
               placeholder="아이디를 입력하세요"
               value={loginId}
               onChange={(e) => setLoginId(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "11px 14px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                fontSize: "14px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
             />
           </div>
 
-          {/* 비밀번호 */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: "600", color: "#555" }}>
-              비밀번호
-            </label>
+          <div className="form-group">
+            <label className="form-label">비밀번호</label>
             <input
               type="password"
+              className="form-input"
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "11px 14px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                fontSize: "14px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
             />
           </div>
 
-          {/* 에러 메시지 */}
-          {error && (
-            <p style={{
-              margin: "0 0 16px 0",
-              padding: "10px 14px",
-              background: "#fff1f1",
-              border: "1px solid #fca5a5",
-              borderRadius: "6px",
-              fontSize: "13px",
-              color: "#b91c1c",
-            }}>
-              {error}
-            </p>
-          )}
+          {error && <p className="error-box">{error}</p>}
 
-          {/* 로그인 버튼 */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              padding: "13px",
-              background: isLoading ? "#fcd9b0" : "#ffa042",
-              border: "none",
-              borderRadius: "8px",
-              color: "#fff",
-              fontSize: "15px",
-              fontWeight: "bold",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-            }}
-          >
+          <button type="submit" className="btn-primary" disabled={isLoading}>
             <LogIn size={17} />
             {isLoading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
         {/* 구분선 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "20px 0 16px 0" }}>
-          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
-          <span style={{ fontSize: "12px", color: "#94a3b8", whiteSpace: "nowrap" }}>계정이 없으신가요?</span>
-          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
+        <div className="divider">
+          <span>계정이 없으신가요?</span>
         </div>
 
         {/* 회원가입 버튼 */}
-        <button
-          type="button"
-          onClick={onGoRegister}
-          style={{
-            width: "100%",
-            padding: "12px",
-            background: "#fff",
-            border: "1px solid #ffa042",
-            borderRadius: "8px",
-            color: "#ffa042",
-            fontSize: "15px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            marginBottom: "16px",
-          }}
-        >
+        <button type="button" className="btn-outline" onClick={onGoRegister}>
           <UserPlus size={17} />
           회원가입
         </button>
 
         {/* 테스트 계정 안내 */}
-        <div style={{
-          padding: "12px",
-          background: "#f8fafc",
-          borderRadius: "8px",
-          border: "1px solid #e2e8f0",
-          fontSize: "12px",
-          color: "#64748b",
-          textAlign: "center",
-        }}>
+        <div className="hint-box">
           <strong>테스트 계정</strong><br />
-          아이디: <code style={{ background: "#e2e8f0", padding: "1px 5px", borderRadius: "3px" }}>test</code> &nbsp;
-          비밀번호: <code style={{ background: "#e2e8f0", padding: "1px 5px", borderRadius: "3px" }}>1234</code>
+          아이디: <code>test</code>&nbsp; 비밀번호: <code>1234</code>
         </div>
       </div>
     </div>
