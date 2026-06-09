@@ -1,6 +1,5 @@
 package com.aivle.bookapp.domain;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -9,35 +8,27 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
-
-//@Table(name = "BOOK2")     // Table 어노테이션 테스트
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Book {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bookId;
-
-    @Column(nullable = false, length = 200)
-    @NotBlank
-    private String title;
+    private Long userId;
 
     @Column(nullable = false)
     @NotBlank
-    private String author;
+    private String loginId;
 
     @Column(nullable = false)
     @NotBlank
-    private String content;
+    private String password;
 
-    private String coverImageUrl;
+    @Column(nullable = false)
+    @NotBlank
+    private String name;
 
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private Long userId;
 }
