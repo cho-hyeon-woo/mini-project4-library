@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 
 //@Table(name = "BOOK2")     // Table 어노테이션 테스트
@@ -27,4 +28,14 @@ public class Book {
     @Column(nullable = false)
     @NotBlank
     private String author;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String content;
+
+    private String coverImageUrl;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }
