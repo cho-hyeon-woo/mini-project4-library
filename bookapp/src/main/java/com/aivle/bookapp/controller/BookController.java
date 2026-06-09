@@ -35,7 +35,6 @@ public class BookController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Book>> getBooksByUserId(@PathVariable Long userId) {
-        // Service 및 Repository에 findByUserId 메서드가 구현되어 있어야 합니다.
         List<Book> books = bookService.findByUserId(userId);
         return ResponseEntity.status(HttpStatus.OK).body(book);
     }
