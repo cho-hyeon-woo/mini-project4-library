@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, LogIn } from "lucide-react";
+import { BookOpen, LogIn, UserPlus } from "lucide-react";
 
 export default function LoginPage({ onLogin, onGoRegister }) {
   const [loginId, setLoginId] = useState("");
@@ -158,9 +158,40 @@ export default function LoginPage({ onLogin, onGoRegister }) {
           </button>
         </form>
 
+        {/* 구분선 */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "20px 0 16px 0" }}>
+          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
+          <span style={{ fontSize: "12px", color: "#94a3b8", whiteSpace: "nowrap" }}>계정이 없으신가요?</span>
+          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
+        </div>
+
+        {/* 회원가입 버튼 */}
+        <button
+          type="button"
+          onClick={onGoRegister}
+          style={{
+            width: "100%",
+            padding: "12px",
+            background: "#fff",
+            border: "1px solid #ffa042",
+            borderRadius: "8px",
+            color: "#ffa042",
+            fontSize: "15px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          <UserPlus size={17} />
+          회원가입
+        </button>
+
         {/* 테스트 계정 안내 */}
         <div style={{
-          marginTop: "20px",
           padding: "12px",
           background: "#f8fafc",
           borderRadius: "8px",
