@@ -35,5 +35,4 @@ public class CoverGeneration {
     private LocalDateTime createdAt;
 
     private LocalDateTime completedAt;
-
 }
