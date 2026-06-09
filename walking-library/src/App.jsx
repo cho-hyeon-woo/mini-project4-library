@@ -16,6 +16,7 @@ import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
 import BookForm from "./components/BookForm";
 import BookDetail from "./components/BookDetail";
+import LoginPage from "./pages/LoginPage";
 import "react-toastify/dist/ReactToastify.css";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
@@ -37,6 +38,7 @@ function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle) {
 export default function App() {
   const dbAddress = "http://localhost:3000/books";
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,6 +207,7 @@ export default function App() {
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
       coverImageUrl: tempPreviewImage,
+      user_id: currentUser?.id,
       updatedAt: nowISO
     };
 
@@ -276,8 +279,39 @@ export default function App() {
   return (
     <>
     <div className="app-shell" style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
-      <Header currentMenu={currentMenu} onMenuChange={(menu) => { setCurrentMenu(menu); if (menu !== "mypage") handleCloseDetail(); }} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Header
+        currentMenu={currentMenu}
+        onMenuChange={(menu) => {
+          if (menu === "login") { setCurrentMenu("login"); return; }
+          if ((menu === "register" || menu === "mypage") && !currentUser) {
+            toast.warning("로그인이 필요한 서비스입니다.");
+            setCurrentMenu("login");
+            return;
+          }
+          setCurrentMenu(menu);
+          if (menu !== "mypage") handleCloseDetail();
+        }}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        currentUser={currentUser}
+        onLogout={() => {
+          setCurrentUser(null);
+          setCurrentMenu("home");
+          toast.info("로그아웃 되었습니다.");
+        }}
+      />
       
+      {/* 로그인 화면 */}
+      {currentMenu === "login" && (
+        <LoginPage
+          onLogin={(user) => {
+            setCurrentUser(user);
+            setCurrentMenu("home");
+            toast.success(`${user.name}님, 환영합니다!`);
+          }}
+        />
+      )}
+
       {/* 홈 화면 */}
       {currentMenu === "home" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
@@ -396,18 +430,20 @@ export default function App() {
         <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
           <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
             <UserRound size={21} aria-hidden="true" />
-            마이 페이지 (작가 전용 관리실)
+            {currentUser?.name}님의 서재
           </h3>
+          <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
           
-          <BookDetail 
-            selectedBook={selectedBook} 
-            onStartEdit={startEdit} 
-            onDelete={handleDelete} 
-            onClose={handleCloseDetail} 
+          <BookDetail
+            selectedBook={selectedBook}
+            onStartEdit={startEdit}
+            onDelete={handleDelete}
+            onClose={handleCloseDetail}
             isReadOnly={false}
-            books={books} 
-            onSelectBook={(book) => setSelectedBook(book)} 
-            isMyPage={true} 
+            books={books.filter(b => b.user_id === currentUser?.id)}
+            onSelectBook={(book) => setSelectedBook(book)}
+            isMyPage={true}
+            currentUser={currentUser}
           />
         </div>
       )}

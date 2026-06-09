@@ -1,12 +1,14 @@
 /* 헤더*/
 
-import { BookPlus, Home, Search, UserRound } from "lucide-react";
+import { BookPlus, Home, Search, UserRound, LogIn, LogOut } from "lucide-react";
 
-export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery }) {
+export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery, currentUser, onLogout }) {
   const menuItems = [
     { id: "home", label: "홈", Icon: Home },
     { id: "register", label: "도서 등록하기", Icon: BookPlus },
-    { id: "mypage", label: "마이 페이지", Icon: UserRound },
+    currentUser
+      ? { id: "mypage", label: "마이 페이지", Icon: UserRound }
+      : { id: "login", label: "로그인", Icon: LogIn },
   ];
 
   return (
@@ -58,40 +60,71 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
         </button>
       </div>
 
-      {/* 3. 네비게이션 버튼 (3열 배치) */}
-      <nav className="nav-tabs" style={{ display: "flex", gap: "15px", width: "100%" }}>
-        {menuItems.map((item) => {
-          const isActive = currentMenu === item.id;
-          const { Icon } = item;
-          return (
-            <button
-              key={item.id}
-              className="nav-tab"
-              onClick={() => onMenuChange(item.id)}
-              style={{
-                flex: 1,
-                padding: "25px 10px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                backgroundColor: isActive ? "#ffa042" : "#fff",
-                color: isActive ? "#fff" : "#333",
-                fontSize: "18px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                boxShadow: isActive ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
-                transition: "all 0.2s"
-              }}
-            >
-              <Icon size={19} strokeWidth={2.1} aria-hidden="true" />
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
+      {/* 3. 네비게이션 버튼 + 로그아웃 */}
+      <div style={{ display: "flex", gap: "15px", width: "100%", alignItems: "stretch" }}>
+        <nav className="nav-tabs" style={{ display: "flex", gap: "15px", flex: 1 }}>
+          {menuItems.map((item) => {
+            const isActive = currentMenu === item.id;
+            const { Icon } = item;
+            return (
+              <button
+                key={item.id}
+                className="nav-tab"
+                onClick={() => onMenuChange(item.id)}
+                style={{
+                  flex: 1,
+                  padding: "25px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  backgroundColor: isActive ? "#ffa042" : "#fff",
+                  color: isActive ? "#fff" : "#333",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  boxShadow: isActive ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
+                  transition: "all 0.2s"
+                }}
+              >
+                <Icon size={19} strokeWidth={2.1} aria-hidden="true" />
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* 로그인 상태일 때만 로그아웃 버튼 표시 */}
+        {currentUser && (
+          <button
+            onClick={onLogout}
+            title="로그아웃"
+            style={{
+              padding: "0 18px",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              backgroundColor: "#fff",
+              color: "#666",
+              fontSize: "13px",
+              fontWeight: "600",
+              cursor: "pointer",
+              display: "inline-flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px",
+              whiteSpace: "nowrap",
+              transition: "all 0.2s",
+              minWidth: "70px",
+            }}
+          >
+            <LogOut size={18} strokeWidth={2} />
+            로그아웃
+          </button>
+        )}
+      </div>
     </header>
   );
 }
