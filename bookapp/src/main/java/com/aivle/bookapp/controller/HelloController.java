@@ -5,8 +5,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 public class HelloController {
+
+    @GetMapping("/")
+    public Map<String, String> home() {
+        return Map.of(
+                "status", "Book API is running",
+                "frontend", "http://localhost:5173",
+                "booksApi", "http://localhost:8080/books"
+        );
+    }
 
     // "/hello" GetMapping
     /*@GetMapping("/hello")

@@ -14,7 +14,7 @@ Walking Library는 도서를 등록·조회·수정·삭제하고, OpenAI 이미
 |------|------|
 | Frontend | React 19, React Router DOM 7, React Toastify |
 | Build | Vite 8 |
-| Backend | json-server 0.17 |
+| Backend | Spring Boot 4, H2 Database |
 | AI | OpenAI Images API (gpt-image-1 등) |
 | Lint | ESLint 10 |
 
@@ -36,8 +36,8 @@ Walking Library는 도서를 등록·조회·수정·삭제하고, OpenAI 이미
 
 ```
 mini-project4-library/
-├── db.json                  # json-server 데이터베이스
-├── package.json
+├── package.json             # 통합 설치/실행 스크립트
+├── bookapp/                 # Spring Boot 백엔드
 └── walking-library/         # React 앱
     ├── index.html
     └── src/
@@ -67,30 +67,16 @@ mini-project4-library/
 
 ### 설치 및 실행
 
-```bash
-# 의존성 설치
-1. npm install로 의존성 설치
-2. npm run dev로 vite 페이지 실행
-3. npm install json-server@0.17.4로 json서버 의존성 설치
-4. npx json-server --watch db.json으로 json 서버 실행
-5. npm install react-toastify react-dropzone lucide-react motion으로 UI 라이브러리 의존성 설치
- 
-```
-
-이후 **터미널 2개**를 열어 각각 실행합니다.
-
-```bash
-# 터미널 1 — JSON Server (포트 3000)
-npx json-server --watch ../db.json
-
-# 터미널 2 — Vite 개발 서버 (포트 5173)
-npm run dev
+```powershell
+# 의존성 설치 후 백엔드와 프론트엔드 동시 실행
+npm.cmd run dev
 ```
 
 | 서비스 | 주소 |
 |--------|------|
 | 프론트엔드 | http://localhost:5173 |
-| JSON Server API | http://localhost:3000/books |
+| Spring Boot API | http://localhost:8080/books |
+| H2 Console | http://localhost:8080/h2-console |
 
 ---
 
@@ -106,7 +92,7 @@ npm run dev
 
 ---
 
-## API 엔드포인트 (json-server)
+## API 엔드포인트 (Spring Boot)
 
 | Method | URL | 설명 |
 |--------|-----|------|

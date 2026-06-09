@@ -6,6 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
       '/aladin-api': {
         target: 'http://www.aladin.co.kr',
         changeOrigin: true,

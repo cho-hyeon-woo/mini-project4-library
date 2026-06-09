@@ -87,6 +87,36 @@ public class BookService {
         if (book.getAuthor() != null) {
             existing.setAuthor(book.getAuthor());
         }
+        if (book.getContent() != null) {
+            existing.setContent(book.getContent());
+        }
+        if (book.getGenre() != null) {
+            existing.setGenre(book.getGenre());
+        }
+        if (book.getStyle() != null) {
+            existing.setStyle(book.getStyle());
+        }
+        if (book.getCoverImageUrl() != null) {
+            existing.setCoverImageUrl(book.getCoverImageUrl());
+        }
+        if (book.getImageModel() != null) {
+            existing.setImageModel(book.getImageModel());
+        }
+        if (book.getImageSize() != null) {
+            existing.setImageSize(book.getImageSize());
+        }
+        if (book.getImageQuality() != null) {
+            existing.setImageQuality(book.getImageQuality());
+        }
+        if (book.getOutputFormat() != null) {
+            existing.setOutputFormat(book.getOutputFormat());
+        }
+        if (book.getCreatedAt() != null) {
+            existing.setCreatedAt(book.getCreatedAt());
+        }
+        if (book.getUpdatedAt() != null) {
+            existing.setUpdatedAt(book.getUpdatedAt());
+        }
 
         return bookRepository.save(existing);
     }

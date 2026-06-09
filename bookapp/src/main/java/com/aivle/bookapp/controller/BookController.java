@@ -84,7 +84,7 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @PatchMapping("/books/{id}")
+    @RequestMapping(value = "/books/{id}", method = {RequestMethod.PATCH, RequestMethod.PUT})
     public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
         return bookService.update(id, book);
     }

@@ -27,4 +27,26 @@ public class Book {
     @Column(nullable = false)
     @NotBlank
     private String author;
+
+    @Column(length = 4000)
+    private String content;
+
+    private String genre;
+
+    private String style;
+
+    @Lob
+    private String coverImageUrl;
+
+    private String imageModel;
+
+    private String imageSize;
+
+    private String imageQuality;
+
+    private String outputFormat;
+
+    private String createdAt;
+
+    private String updatedAt;
 }
