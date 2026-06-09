@@ -1,104 +1,52 @@
 package com.aivle.bookapp.service;
 
-import com.aivle.bookapp.domain.Book;
-import com.aivle.bookapp.exception.BookNotFoundException;
-import com.aivle.bookapp.repository.BookRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import -----
+import -----
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BookService {
+
+
+public class BookService{
     private final BookRepository bookRepository;
 
+    // 전체 도서 목록 조회
     @Transactional(readOnly = true)
-    public Book findById(Long id) {
-        return bookRepository.findById(id).orElseThrow(()
-                -> new BookNotFoundException(id));
+    public List<Book> getAllBooks(){
+
+        return --
     }
 
+    // 도서 조회
     @Transactional(readOnly = true)
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public Book getBookById(String id){
+
+        return --
+
+    }
+    // 도서 등록
+    public Book createBook(Book book){
+
+        return--
     }
 
-    @Transactional
-    public void deleteBook(Long id) {
-        if (bookRepository.existsById(id)) {
-            bookRepository.deleteById(id);
-        } else {
-            throw new BookNotFoundException(id);
-        }
+    //도서 수정
+    public Book updateBook(String id, Book book){
+
+        return --
     }
 
-    @Transactional(readOnly = true)
-    public long count() {
-        return bookRepository.count();
+    //도서 삭제
+    public void deleteBook(String id){
+
+        return --
     }
 
-    @Transactional(readOnly = true)
-    public List<Book> searchByTitle(String title) {
-        return bookRepository.findByTitle(title);
-    }
+    // 내 도서 목록 조회 - 마이페이지용
+    @Transactional(readOnly = ture)
+    public List<Book> getBookByUserId(String userId){
 
-    @Transactional(readOnly = true)
-    public List<Book> searchByKeyword(String keyword) {
-        return bookRepository.findByTitleContaining(keyword);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Book> searchByTitleAndAuthor(String title, String author) {
-        return bookRepository.findByTitleAndAuthor(title, author);
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> authorGetTitle(String author) {
-        List<Book> books = bookRepository.findByAuthor(author);
-
-        return books.stream().map(book -> book.getTitle()).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Book> getPage(int page, int size, String sortBy) {
-        Sort sort = Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return bookRepository.findAll(pageable);
-    }
-
-    @Transactional
-    public Book create(Book book) {
-        return bookRepository.save(book);
-    }
-
-    @Transactional
-    public Book update(Long id, Book book) {
-        Book existing = findById(id);
-
-        if (book.getTitle() != null) {
-            existing.setTitle(book.getTitle());
-        }
-        if (book.getAuthor() != null) {
-            existing.setAuthor(book.getAuthor());
-        }
-
-        return bookRepository.save(existing);
+        return --
     }
 }
-
-
-
-
-
-
-
-
-
-
-
