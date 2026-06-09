@@ -35,7 +35,7 @@ function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle) {
 }
 
 export default function App() {
-  const dbAddress = "http://localhost:3000/books";
+  const dbAddress = "http://localhost:8080/books";
 
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
