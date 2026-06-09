@@ -3,7 +3,7 @@ import { BookOpen, Heart } from "lucide-react";
 export default function BookList({ books, selectedBook, onSelectBook, horizontal, emptyMessage = "등록된 도서가 없습니다." }) {
   return (
     <section style={{ flex: horizontal ? "none" : 1 }}>
-      <h3 style={{ marginTop: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+      <h3 className="section-title" style={{ marginBottom: "12px" }}>
         {horizontal ? (
           <>
             <Heart size={18} fill="currentColor" aria-hidden="true" />
@@ -17,22 +17,20 @@ export default function BookList({ books, selectedBook, onSelectBook, horizontal
           </>
         )}
       </h3>
+
       {books.length === 0 && (
-        <p style={{ margin: 0, padding: "18px", border: "1px dashed #ccc", borderRadius: "6px", color: "#777", textAlign: "center", background: "#fafafa" }}>
+        <p className="book-empty" style={{ border: "1px dashed #ccc", padding: "18px", borderRadius: "6px", background: "#fafafa" }}>
           {emptyMessage}
         </p>
       )}
-      <div style={{
-        display: "flex",
-        flexDirection: horizontal ? "row" : "column",
-        overflow: horizontal ? "auto" : "visible",
-        gap: "10px"
-      }}>
+
+      <div style={{ display: "flex", flexDirection: horizontal ? "row" : "column", overflow: horizontal ? "auto" : "visible", gap: "10px" }}>
         {books.map((book) => {
           const isCurrent = selectedBook?.id === book.id;
           return (
             <div
               key={book.id}
+              className="mypage-book-item"
               onClick={() => onSelectBook(isCurrent ? null : book)}
               style={{
                 padding: "12px",
@@ -41,9 +39,8 @@ export default function BookList({ books, selectedBook, onSelectBook, horizontal
                 minWidth: horizontal ? "150px" : "auto",
                 cursor: "pointer",
                 borderRadius: "6px",
-                transition: "background 0.2s",
                 background: isCurrent ? "#e6f7ff" : "#fff",
-                boxShadow: isCurrent ? "0 2px 4px rgba(0,0,0,0.05)" : "none"
+                boxShadow: isCurrent ? "0 2px 4px rgba(0,0,0,0.05)" : "none",
               }}
             >
               <strong style={{ display: "block", marginBottom: "5px" }}>{book.title}</strong>
