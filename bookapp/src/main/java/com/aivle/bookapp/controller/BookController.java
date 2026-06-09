@@ -18,25 +18,48 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class BookController {
-    // 하드코딩 getBook
-    /*@GetMapping("/books/1")
-    public Book getBook() {
-        return new Book(1L, "Spring Boot 입문", "임한울");
-    }*/
-
+    
     private final BookService bookService;
 
-    @GetMapping("/books/{id}")
-    public Book getBook(@PathVariable Long id) {
-        return bookService.findById(id);
+    @PostMapping
+    public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
+        Book saved = bookService.create(book);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/books")
-    public List<Book> getAll() {
-        return bookService.findAll();
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBook(@PathVariable Long id) {
+        Book book = bookService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(book);
     }
 
-    @DeleteMapping("/books/{id}")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Book>> getBooksByUserId(@PathVariable Long userId) {
+        // Service 및 Repository에 findByUserId 메서드가 구현되어 있어야 합니다.
+        List<Book> books = bookService.findByUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(book);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Book>> getAll() {
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.findAll());
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<Book>> getPage(
+            @RequestParam int page, 
+            @RequestParam int size, 
+            @RequestParam(defaultValue = "id") String sortBy) {
+        return ResponseEntity.ok(bookService.getPage(page, size, sortBy));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
+        Book updated = bookService.update(id, book);
+        return ResponseEntity.ok(updated);
+    }
+    
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
@@ -51,11 +74,6 @@ public class BookController {
     public List<Book> searchByTitle(@RequestParam String title) {
         return bookService.searchByTitle(title);
     }
-
-    /*@GetMapping("/books/search/author")
-    public List<Book> searchByAuthor(@RequestParam String author) {
-        return bookRepository.findByAuthor(author);
-    }*/
 
     @GetMapping("/books/search")
     public List<Book> searchByKeyword(@RequestParam String keyword) {
@@ -72,21 +90,11 @@ public class BookController {
         return bookService.authorGetTitle(author);
     }
 
-    @GetMapping("/books/page")
-    public Page<Book> getPage(@RequestParam int page, @RequestParam int size, @RequestParam String sortBy) {
-        return bookService.getPage(page, size, sortBy);
-    }
-
     @PostMapping("/books")
     public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
         Book saved = bookService.create(book);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
-
-    @PatchMapping("/books/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
-        return bookService.update(id, book);
     }
 }
 
