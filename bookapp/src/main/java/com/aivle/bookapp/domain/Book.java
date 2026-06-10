@@ -1,15 +1,13 @@
 package com.aivle.bookapp.domain;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
-
-//@Table(name = "BOOK2")     // Table 어노테이션 테스트
 @Entity
 @Getter
 @Setter
@@ -27,4 +25,21 @@ public class Book {
     @Column(nullable = false)
     @NotBlank
     private String author;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
+    private String coverImageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+//    private String genre;
+    private String style;
+    private String imageModel;
+//    private String imageSize;
+    private String imageQuality;
+    private String outputFormat;
+
+    // 외래키로 유저 ID
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

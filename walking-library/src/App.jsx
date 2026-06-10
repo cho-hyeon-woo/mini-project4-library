@@ -10,7 +10,7 @@ import SignupPage from "./pages/SignupPage";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
-  const dbAddress = "http://localhost:3000/books";
+  const dbAddress = "http://localhost:8080/books";
 
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMenu, setCurrentMenu] = useState("home");

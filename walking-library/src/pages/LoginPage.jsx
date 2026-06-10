@@ -18,17 +18,21 @@ export default function LoginPage({ onLogin, onGoRegister }) {
     setError("");
 
     try {
-      const res = await fetch(`http://localhost:3000/users?login_id=${loginId.trim()}&password=${password.trim()}`);
-      const users = await res.json();
+      const res = await fetch("http://localhost:8080/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ loginId: loginId.trim(), password: password.trim() }),
+      });
 
-      if (users.length === 0) {
+      if (!res.ok) {
         setError("아이디 또는 비밀번호가 올바르지 않습니다.");
         return;
       }
 
-      onLogin(users[0]);
+      const user = await res.json();
+      onLogin(user);
     } catch (err) {
-      setError("서버에 연결할 수 없습니다. json-server가 실행 중인지 확인해주세요.");
+      setError("서버에 연결할 수 없습니다. Spring Boot 서버(8080)가 실행 중인지 확인해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +92,6 @@ export default function LoginPage({ onLogin, onGoRegister }) {
           <UserPlus size={17} />
           회원가입
         </button>
-
-        {/* 테스트 계정 안내 */}
-        <div className="hint-box">
-          <strong>테스트 계정</strong><br />
-          아이디: <code>test</code>&nbsp; 비밀번호: <code>1234</code>
-        </div>
       </div>
     </div>
   );
