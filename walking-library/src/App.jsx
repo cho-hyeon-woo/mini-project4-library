@@ -361,7 +361,7 @@ export default function App() {
                   onDelete={handleDelete}
                   onClose={handleCloseDetail}
                   isReadOnly={false}
-                  books={books.filter(b => b.user_id === currentUser?.id)}
+                  books={books.filter(b => b.userId === currentUser?.userId)}
                   onSelectBook={(book) => setSelectedBook(book)}
                   isMyPage={true}
                   currentUser={currentUser}
