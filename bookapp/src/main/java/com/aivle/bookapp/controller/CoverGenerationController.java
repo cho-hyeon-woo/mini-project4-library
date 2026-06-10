@@ -1,4 +1,4 @@
-package com.aivle.bookapp.controller;
+/*package com.aivle.bookapp.controller;
 
 import com.aivle.bookapp.domain.CoverGeneration;
 import com.aivle.bookapp.service.CoverGenerationService;
@@ -21,4 +21,4 @@ public class CoverGenerationController {
         
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCover);
     }
-}
+}*/
