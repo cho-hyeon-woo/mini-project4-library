@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,16 @@ public class UserService{
     public User register(User user){
         user.setCreatedAt(LocalDateTime.now());
         return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     //로그인

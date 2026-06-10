@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -18,6 +19,14 @@ public class UserController {
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
         User saved = userService.register(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String loginId) {
+        if (loginId != null) {
+            return ResponseEntity.ok(userService.findByLoginId(loginId));
+        }
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{userId}")

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import org.springframework.data.annotation.CreatedDate;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private Long bookId;
 
     @Column(nullable = false, length = 200)
@@ -35,6 +37,7 @@ public class Book {
     @NotBlank
     private String content;
 
+    @Lob
     private String coverImageUrl;
 
     @CreatedDate

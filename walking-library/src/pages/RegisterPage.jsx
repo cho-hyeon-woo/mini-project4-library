@@ -142,8 +142,8 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
 
     try {
       if (isEditing) {
-        const res = await fetch(`${dbAddress}/${selectedBook.id}`, {
-          method: "PUT",
+        const res = await fetch(`${dbAddress}/update/${selectedBook.id}`, {
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...selectedBook, ...payload }),
         });
