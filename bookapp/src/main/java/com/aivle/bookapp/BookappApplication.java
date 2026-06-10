@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class BookappApplication {
 
 	// 💡 괄호 안에 UserRepository 도 함께 주입받도록 수정합니다.

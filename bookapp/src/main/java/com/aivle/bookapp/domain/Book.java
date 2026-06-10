@@ -7,16 +7,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+//@Table(name = "BOOK2")     // Table 어노테이션 테스트
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long bookId;
 
     @Column(nullable = false, length = 200)
     @NotBlank
@@ -26,20 +31,17 @@ public class Book {
     @NotBlank
     private String author;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false)
+    @NotBlank
     private String content;
-    private String coverImageUrl;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-//    private String genre;
-    private String style;
-    private String imageModel;
-//    private String imageSize;
-    private String imageQuality;
-    private String outputFormat;
 
-    // 외래키로 유저 ID
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String coverImageUrl;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    private Long userId;
 }

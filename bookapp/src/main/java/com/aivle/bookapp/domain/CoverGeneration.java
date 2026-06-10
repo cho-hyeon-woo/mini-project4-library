@@ -1,7 +1,6 @@
 package com.aivle.bookapp.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,29 +11,32 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class CoverGeneration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long generationId;
 
-    @Column(nullable = false)
-    @NotBlank
-    private String loginId;
+    private Long bookId;
 
-    @Column(nullable = false)
-    @NotBlank
-    private String password;
+    private String imageModel;
 
-    @Column(nullable = false)
-    @NotBlank
-    private String name;
+    private String imageQuality;
+
+    private String outputFormat;
+
+    private String coverStyle;
+
+    private String prompt;
+
+    private String status;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    private LocalDateTime completedAt;
 }
