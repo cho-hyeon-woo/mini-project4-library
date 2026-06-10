@@ -102,6 +102,7 @@ export default function App() {
       setCurrentUser(null);
       setShowAccountEdit(false);
       setCurrentMenu("home");
+      handleCloseDetail();
       toast.success("회원 탈퇴가 완료되었습니다.");
     } catch (err) {
       toast.error(err.message || "회원 탈퇴에 실패했습니다.");
@@ -138,7 +139,7 @@ export default function App() {
               return;
             }
             setCurrentMenu(menu);
-            if (menu !== "mypage") handleCloseDetail();
+            handleCloseDetail();
           }}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -146,6 +147,7 @@ export default function App() {
           onLogout={() => {
             setCurrentUser(null);
             setCurrentMenu("home");
+            setShowAccountEdit(false);
             handleCloseDetail();
             toast.info("로그아웃 되었습니다.");
           }}
