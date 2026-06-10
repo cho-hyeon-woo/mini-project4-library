@@ -82,7 +82,7 @@ public class BookController {
         return ResponseEntity.ok(updated);
     }
     
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();

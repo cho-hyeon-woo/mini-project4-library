@@ -35,7 +35,7 @@ export default function LoginPage({ onLogin, onGoRegister }) {
       const user = await res.json();
       onLogin(user);
     } catch (err) {
-      setError("서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.");
+      setError("서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -95,12 +95,6 @@ export default function LoginPage({ onLogin, onGoRegister }) {
           <UserPlus size={17} />
           회원가입
         </button>
-
-        {/* 테스트 계정 안내 */}
-        <div className="hint-box">
-          <strong>테스트 계정</strong><br />
-          아이디: <code>test</code>&nbsp; 비밀번호: <code>1234</code>
-        </div>
       </div>
     </div>
   );
