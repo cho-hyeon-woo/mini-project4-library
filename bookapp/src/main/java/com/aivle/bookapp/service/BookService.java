@@ -49,7 +49,7 @@ public class BookService{
         existing.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(existing);
 
-        // ERD랑 한번 더 비교해서 보기
+
     }
 
     //도서 삭제
