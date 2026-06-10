@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/books")
 @RequiredArgsConstructor
 public class BookController {
     
@@ -23,7 +24,19 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
-        Book saved = bookService.create(book);
+        Book saved = bookService.createBook(book);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @GetMapping("/create-test") 
+    public ResponseEntity<Book> createBookByUrl(@RequestParam String title, @RequestParam String author, @RequestParam String content) {
+
+        Book newBook = new Book();
+        newBook.setTitle(title);
+        newBook.setAuthor(author);
+        newBook.setContent(content);
+
+        Book saved = bookService.createBook(newBook);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -35,66 +48,77 @@ public class BookController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Book>> getBooksByUserId(@PathVariable Long userId) {
-        List<Book> books = bookService.findByUserId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(book);
+        List<Book> books = bookService.findUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(books);
     }
 
     @GetMapping
     public ResponseEntity<List<Book>> getAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(bookService.findAll());
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.getAllBooks());
     }
 
-    @GetMapping("/page")
-    public ResponseEntity<Page<Book>> getPage(
-            @RequestParam int page, 
-            @RequestParam int size, 
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return ResponseEntity.ok(bookService.getPage(page, size, sortBy));
-    }
-
-    @PatchMapping("/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-        Book updated = bookService.update(id, book);
+        Book updated = bookService.updateBook(id, book);
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/update-url")
+    public ResponseEntity<Book> updateBookByUrl(
+            @RequestParam Long id,
+            @RequestParam String title,
+            @RequestParam String author,
+            @RequestParam String content,
+            @RequestParam(required = false) String coverImageUrl) {
+
+        Book updateData = new Book();
+        updateData.setTitle(title);
+        updateData.setAuthor(author);
+        updateData.setContent(content);
+        updateData.setCoverImageUrl(coverImageUrl);
+
+        Book updated = bookService.updateBook(id, updateData);
+
         return ResponseEntity.ok(updated);
     }
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/books/count")
+    /*@GetMapping("/books/count")
     public long getCount() {
         return bookService.count();
-    }
+    }*/
 
-    @GetMapping("/books/search/title")
+    /*@GetMapping("/books/search/title")
     public List<Book> searchByTitle(@RequestParam String title) {
         return bookService.searchByTitle(title);
-    }
+    }*/
 
-    @GetMapping("/books/search")
+    /*@GetMapping("/books/search")
     public List<Book> searchByKeyword(@RequestParam String keyword) {
         return bookService.searchByKeyword(keyword);
-    }
+    }*/
 
-    @GetMapping("/books/search/detail")
+    /*@GetMapping("/books/search/detail")
     public List<Book> searchByTitleAndAuthor(@RequestParam String title, @RequestParam String author) {
         return bookService.searchByTitleAndAuthor(title, author);
-    }
+    }*/
 
-    @GetMapping("/books/search/author")
+    /*@GetMapping("/books/search/author")
     public List<String> authorGetTitle(@RequestParam String author) {
         return bookService.authorGetTitle(author);
-    }
+    }*/
 
-    @PostMapping("/books")
+    /*@PostMapping("/books")
     public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
         Book saved = bookService.create(book);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
+    }*/
 }
 
 
