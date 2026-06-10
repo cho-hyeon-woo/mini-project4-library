@@ -136,7 +136,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
       coverImageUrl: tempPreviewImage,
-      user_id: currentUser?.id,
+      userId: currentUser?.userId,
       updatedAt: nowISO
     };
 
