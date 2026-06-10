@@ -26,6 +26,10 @@ export default function App() {
   const recommendDetailRef = useRef(null);
   const listDetailRef = useRef(null);
 
+  const [showAccountEdit, setShowAccountEdit] = useState(false);
+  const [accountName, setAccountName] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearchQuery(searchQuery), 400);
     return () => clearTimeout(handler);
@@ -71,6 +75,37 @@ export default function App() {
   const startEdit = () => {
     setIsEditing(true);
     setCurrentMenu("register");
+  };
+
+  const handleUpdateAccount = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/users/${currentUser.userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: accountName, password: accountPassword }),
+      });
+      if (!res.ok) throw new Error("회원 정보 수정에 실패했습니다.");
+      const updated = await res.json();
+      setCurrentUser(updated);
+      setShowAccountEdit(false);
+      toast.success("회원 정보가 수정되었습니다.");
+    } catch (err) {
+      toast.error(err.message || "회원 정보 수정에 실패했습니다.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("정말 회원 탈퇴하시겠습니까? 탈퇴 시 복구할 수 없습니다.")) return;
+    try {
+      const res = await fetch(`http://localhost:8080/users/${currentUser.userId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("회원 탈퇴에 실패했습니다.");
+      setCurrentUser(null);
+      setShowAccountEdit(false);
+      setCurrentMenu("home");
+      toast.success("회원 탈퇴가 완료되었습니다.");
+    } catch (err) {
+      toast.error(err.message || "회원 탈퇴에 실패했습니다.");
+    }
   };
 
   const handleOpenDetail = (book, source) => {
@@ -255,23 +290,84 @@ export default function App() {
         {/* 마이 페이지 */}
         {currentMenu === "mypage" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-            <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-              <UserRound size={21} aria-hidden="true" />
-              {currentUser?.name}님의 서재
-            </h3>
-            <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                <UserRound size={21} aria-hidden="true" />
+                {currentUser?.name}님의 서재
+              </h3>
+              <button
+                type="button"
+                className="btn-outline"
+                style={{ width: "auto", flexShrink: 0, padding: "8px 14px", fontSize: "13px", marginBottom: 0 }}
+                onClick={() => {
+                  setAccountName(currentUser?.name || "");
+                  setAccountPassword(currentUser?.password || "");
+                  setShowAccountEdit((prev) => !prev);
+                }}
+              >
+                계정 관리
+              </button>
+            </div>
 
-            <BookDetail
-              selectedBook={selectedBook}
-              onStartEdit={startEdit}
-              onDelete={handleDelete}
-              onClose={handleCloseDetail}
-              isReadOnly={false}
-              books={books.filter(b => b.user_id === currentUser?.id)}
-              onSelectBook={(book) => setSelectedBook(book)}
-              isMyPage={true}
-              currentUser={currentUser}
-            />
+            {showAccountEdit && (
+              <div className="auth-wrapper" style={{ minHeight: "auto" }}>
+                <div className="auth-card">
+                  <div className="auth-logo">
+                    <div className="auth-logo-icon">
+                      <UserRound size={26} color="#ffa042" />
+                    </div>
+                    <h2>계정 관리</h2>
+                    <p>회원 정보를 수정하거나 탈퇴할 수 있어요</p>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">이름</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={accountName}
+                      onChange={(e) => setAccountName(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">비밀번호</label>
+                    <input
+                      type="password"
+                      className="form-input"
+                      value={accountPassword}
+                      onChange={(e) => setAccountPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button type="button" className="btn-primary" style={{ flex: 1, marginBottom: 0 }} onClick={handleUpdateAccount}>
+                      수정하기
+                    </button>
+                    <button type="button" className="btn-outline" style={{ flex: 1, marginBottom: 0 }} onClick={handleDeleteAccount}>
+                      계정 탈퇴
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!showAccountEdit && (
+              <>
+                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
+
+                <BookDetail
+                  selectedBook={selectedBook}
+                  onStartEdit={startEdit}
+                  onDelete={handleDelete}
+                  onClose={handleCloseDetail}
+                  isReadOnly={false}
+                  books={books.filter(b => b.user_id === currentUser?.id)}
+                  onSelectBook={(book) => setSelectedBook(book)}
+                  isMyPage={true}
+                  currentUser={currentUser}
+                />
+              </>
+            )}
           </div>
         )}
       </div>
