@@ -33,26 +33,29 @@ export default function SignupPage({ onSignupSuccess, onGoLogin }) {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8080/users", {
+      const checkRes = await fetch(`http://localhost:3000/users?login_id=${loginId.trim()}`);
+      const existing = await checkRes.json();
+      if (existing.length > 0) {
+        setError("이미 사용 중인 아이디입니다.");
+        return;
+      }
+
+      const res = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          loginId: loginId.trim(),
+          login_id: loginId.trim(),
           password: password.trim(),
           name: name.trim(),
         }),
       });
 
-      if (res.status === 409) {
-        setError("이미 사용 중인 아이디입니다.");
-        return;
-      }
       if (!res.ok) throw new Error("회원가입에 실패했습니다.");
 
       const newUser = await res.json();
       onSignupSuccess(newUser);
     } catch (err) {
-      setError(err.message || "서버에 연결할 수 없습니다. Spring Boot 서버(8080)가 실행 중인지 확인해주세요.");
+      setError(err.message || "서버에 연결할 수 없습니다. json-server가 실행 중인지 확인해주세요.");
     } finally {
       setIsLoading(false);
     }

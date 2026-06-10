@@ -42,10 +42,15 @@ public class BookService{
     public Book updateBook(Long id, Book book){
         Book existing = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
-        existing.setTitle(book.getTitle());
-        existing.setAuthor(book.getAuthor());
-        existing.setContent(book.getContent());
-        existing.setCoverImageUrl(book.getCoverImageUrl());
+        if (book.getTitle() != null) {
+            existing.setTitle(book.getTitle());
+        }        if (book.getAuthor() != null) {
+            existing.setAuthor(book.getAuthor());
+        }        if (book.getContent() != null) {
+            existing.setContent(book.getContent());
+        }        if (book.getCoverImageUrl() != null) {
+            existing.setCoverImageUrl(book.getCoverImageUrl());
+        }
         existing.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(existing);
 
