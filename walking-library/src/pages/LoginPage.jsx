@@ -18,15 +18,22 @@ export default function LoginPage({ onLogin, onGoRegister }) {
     setError("");
 
     try {
-      const res = await fetch(`http://localhost:8080/users?login_id=${loginId.trim()}&password=${password.trim()}`);
-      const users = await res.json();
+      const res = await fetch("http://localhost:8080/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loginId: loginId.trim(),
+          password: password.trim(),
+        }),
+      });
 
-      if (users.length === 0) {
+      if (!res.ok) {
         setError("아이디 또는 비밀번호가 올바르지 않습니다.");
         return;
       }
 
-      onLogin(users[0]);
+      const user = await res.json();
+      onLogin(user);
     } catch (err) {
       setError("서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.");
     } finally {

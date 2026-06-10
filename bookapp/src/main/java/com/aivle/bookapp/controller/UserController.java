@@ -1,12 +1,17 @@
 package com.aivle.bookapp.controller;
 
 import com.aivle.bookapp.domain.User;
+import com.aivle.bookapp.dto.UserLoginRequest;
+import com.aivle.bookapp.dto.UserRegisterRequest;
+import com.aivle.bookapp.dto.UserResponse;
+import com.aivle.bookapp.dto.UserUpdateRequest;
 import com.aivle.bookapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -15,30 +20,34 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
     @PostMapping
-    public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
-        User saved = userService.register(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegisterRequest user) {
+        User saved = userService.register(user.toEntity());
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(saved));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String loginId) {
-        if (loginId != null) {
-            return ResponseEntity.ok(userService.findByLoginId(loginId));
-        }
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponse>> getUsers(@RequestParam(required = false) String loginId) {
+        List<User> users = loginId != null
+                ? userService.findByLoginId(loginId)
+                : userService.getAllUsers();
+
+        return ResponseEntity.ok(users.stream()
+                .map(UserResponse::from)
+                .toList());
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String userId) {
         User user = userService.getUserById(userId);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable String userId, @RequestBody User user) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest user) {
         User updated = userService.updateUer(userId, user);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(UserResponse.from(updated));
     }
 
     @DeleteMapping("/{userId}")
@@ -48,8 +57,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User loginRequest) {
-        User user = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest loginRequest) {
+        User user = userService.login(loginRequest.loginId(), loginRequest.password());
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 }
