@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByLoginIdAndPassword(String loginId, String password);   //UserService - findByLoginIdAndPassword 위한 선언
     List<User> findByLoginId(String loginId);
+    Optional<User> findFirstByLoginId(String loginId);
+    boolean existsByLoginId(String loginId);
 }

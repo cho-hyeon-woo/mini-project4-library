@@ -21,7 +21,10 @@ export default function LoginPage({ onLogin, onGoRegister }) {
       const res = await fetch("http://localhost:8080/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ loginId: loginId.trim(), password: password.trim() }),
+        body: JSON.stringify({
+          loginId: loginId.trim(),
+          password: password.trim(),
+        }),
       });
 
       if (!res.ok) {
