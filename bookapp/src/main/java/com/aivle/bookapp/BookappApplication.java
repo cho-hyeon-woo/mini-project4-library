@@ -32,26 +32,31 @@ public class BookappApplication {
 			Book b1 = new Book();
 			b1.setTitle("자바의 정석");
 			b1.setAuthor("남궁성");
+			b1.setContent("자바 기본 문법을 다루는 책입니다.");
 			bookRepository.save(b1);
 
 			Book b2 = new Book();
 			b2.setTitle("Spring 입문");
 			b2.setAuthor("임한울");
+			b2.setContent("자바 기본 문법을 다루는 책입니다.");
 			bookRepository.save(b2);
 
 			Book b3 = new Book();
 			b3.setTitle("React 시작");
 			b3.setAuthor("홍길동");
+			b3.setContent("자바 기본 문법을 다루는 책입니다.");
 			bookRepository.save(b3);
 
 			Book b4 = new Book();
 			b4.setTitle("자바의 기초");
 			b4.setAuthor("임한울");
+			b4.setContent("자바 기본 문법을 다루는 책입니다.");
 			bookRepository.save(b4);
 
 			Book b5 = new Book();
 			b5.setTitle("Node.js 실전");
 			b5.setAuthor("김에이블");
+			b5.setContent("자바 기본 문법을 다루는 책입니다.");
 			bookRepository.save(b5);
 		};
 	}
