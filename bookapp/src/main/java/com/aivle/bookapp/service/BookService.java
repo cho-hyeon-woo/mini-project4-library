@@ -1,8 +1,16 @@
 package com.aivle.bookapp.service;
 
-import -----
-import -----
 
+import com.aivle.bookapp.domain.Book;
+import com.aivle.bookapp.exception.BookNotFoundException;
+import com.aivle.bookapp.repository.BookRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -11,42 +19,51 @@ import -----
 public class BookService{
     private final BookRepository bookRepository;
 
-    // 전체 도서 목록 조회
+    // 전체 도서 목록 조회 - 홈 화면 도서
     @Transactional(readOnly = true)
     public List<Book> getAllBooks(){
-
-        return --
+        return bookRepository.findAll();
     }
 
-    // 도서 조회
+    // 도서 조회 - 조회한 도서
     @Transactional(readOnly = true)
-    public Book getBookById(String id){
-
-        return --
-
+    public Book findById(Long id){
+        return bookRepository.findById(id).orElseThrow(()
+                ->new BookNotFoundException(id));
     }
     // 도서 등록
     public Book createBook(Book book){
-
-        return--
+        book.setCreatedAt(LocalDateTime.now());
+        book.setUpdatedAt(LocalDateTime.now());
+        return bookRepository.save(book);
     }
 
     //도서 수정
-    public Book updateBook(String id, Book book){
+    public Book updateBook(Long id, Book book){
+        Book existing = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+        existing.setTitle(book.getTitle());
+        existing.setAuthor(book.getAuthor());
+        existing.setContent(book.getContent());
+        existing.setCoverImageUrl(book.getCoverImageUrl());
+        existing.setUpdatedAt(LocalDateTime.now());
+        return bookRepository.save(existing);
 
-        return --
+        // ERD랑 한번 더 비교해서 보기
     }
 
     //도서 삭제
-    public void deleteBook(String id){
-
-        return --
+    public void deleteBook(Long id){
+        bookRepository.findById(id).orElseThrow(()
+                -> new BookNotFoundException(id));
+        bookRepository.deleteById(id);
     }
 
     // 내 도서 목록 조회 - 마이페이지용
-    @Transactional(readOnly = ture)
-    public List<Book> getBookByUserId(String userId){
-
-        return --
+    @Transactional(readOnly = true)
+    public List<Book> findUserId(Long userId){
+        return bookRepository.findAll().stream()
+                .filter(b->b.getUserId() != null && b.getUserId().equals(userId))
+                .collect(Collectors.toList());
     }
 }
