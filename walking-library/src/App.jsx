@@ -146,6 +146,7 @@ export default function App() {
           onLogout={() => {
             setCurrentUser(null);
             setCurrentMenu("home");
+            handleCloseDetail();
             toast.info("로그아웃 되었습니다.");
           }}
         />
