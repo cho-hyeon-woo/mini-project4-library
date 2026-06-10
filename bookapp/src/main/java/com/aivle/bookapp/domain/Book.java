@@ -35,6 +35,7 @@ public class Book {
     @NotBlank
     private String content;
 
+    @Lob
     private String coverImageUrl;
 
     @CreatedDate
