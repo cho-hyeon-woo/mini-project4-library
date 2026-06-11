@@ -39,7 +39,8 @@ export default function App() {
 
   const filteredBooks = books.filter(book =>
     book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-    book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+    book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+    (book.tags && book.tags.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
   );
 
   const fetchBooks = async () => {

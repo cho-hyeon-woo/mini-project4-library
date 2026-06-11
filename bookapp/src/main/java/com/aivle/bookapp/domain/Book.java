@@ -54,6 +54,5 @@ public class Book {
 
     private Long userId;
 
-    @ManyToMany(mappedBy = "books")
-    private List<Tag> tags;
+    private String tags;
 }
