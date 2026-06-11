@@ -57,8 +57,6 @@ public class BookService{
         }
         existing.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(existing);
-
-
     }
 
     //도서 삭제
@@ -66,6 +64,14 @@ public class BookService{
         bookRepository.findById(id).orElseThrow(()
                 -> new BookNotFoundException(id));
         bookRepository.deleteById(id);
+    }
+
+    // 이미지 URL 등록
+    public Book updateCoverImage(Long id, String coverImageUrl) {
+        Book existing = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+        existing.setCoverImageUrl(coverImageUrl);
+        return bookRepository.save(existing);
     }
 
     // 내 도서 목록 조회 - 마이페이지용
