@@ -249,8 +249,11 @@ export default function App() {
             currentUser={currentUser}
             onLogout={() => {
               setCurrentUser(null);
+              clearSessionUser();
               setCurrentMenu("home");
               setShowAccountEdit(false);
+              setIsEditing(false);
+              setRegisterPageSessionKey((key) => key + 1);
               handleCloseDetail();
               toast.info("로그아웃 되었습니다.");
             }}
@@ -261,6 +264,7 @@ export default function App() {
             <LoginPage
               onLogin={(user) => {
                 setCurrentUser(user);
+                saveSessionUser(user);
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 환영합니다!`);
               }}
@@ -273,6 +277,7 @@ export default function App() {
             <SignupPage
               onSignupSuccess={(user) => {
                 setCurrentUser(user);
+                saveSessionUser(user);
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 회원가입을 축하합니다!`);
               }}
@@ -399,8 +404,9 @@ export default function App() {
           )}
 
           {/* 도서 등록/수정 페이지 */}
-          {currentMenu === "register" && (
+          <div style={{ display: currentMenu === "register" ? "block" : "none" }}>
             <RegisterPage
+              key={registerPageSessionKey}
               dbAddress={dbAddress}
               currentUser={currentUser}
               selectedBook={selectedBook}
@@ -410,15 +416,17 @@ export default function App() {
                 setSelectedBook(null);
                 handleCloseDetail();
                 fetchBooks();
+                setRegisterPageSessionKey((key) => key + 1);
                 setCurrentMenu("home");
               }}
               onCancel={() => {
                 setIsEditing(false);
                 setSelectedBook(null);
+                setRegisterPageSessionKey((key) => key + 1);
                 setCurrentMenu("home");
               }}
             />
-          )}
+          </div>
 
           {/* 마이 페이지 */}
           {currentMenu === "mypage" && (
