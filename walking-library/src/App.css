@@ -186,3 +186,21 @@ section {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 맨 아래에 그대로 추가하세요 */
+@keyframes wheatSway {
+  0% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+  50% {
+    transform: scale(1.07) rotate(1deg) translateX(8px);
+  }
+  100% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+}
+
+.animate-wheat-sway {
+  animation: wheatSway 20s ease-in-out infinite;
+  transform-origin: bottom center;
+}
