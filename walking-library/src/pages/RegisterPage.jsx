@@ -4,6 +4,46 @@ import BookForm from "../components/BookForm";
 
 const OPENAI_IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
 
+function getApiBaseUrl(dbAddress) {
+  return dbAddress.replace(/\/books\/?$/, "");
+}
+
+function dataUrlToFile(dataUrl, fallbackExtension = "png") {
+  const [header, base64Data] = dataUrl.split(",");
+  if (!header || !base64Data) throw new Error("Invalid image data.");
+
+  const mimeMatch = header.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64$/);
+  const mimeType = mimeMatch?.[1] || `image/${fallbackExtension}`;
+  const extension = mimeType.split("/")[1]?.replace("jpeg", "jpg") || fallbackExtension;
+  const binary = atob(base64Data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return new File([bytes], `cover.${extension}`, { type: mimeType });
+}
+
+async function uploadCoverImageIfNeeded(imageValue, dbAddress, outputFormat) {
+  if (!imageValue || !imageValue.startsWith("data:image/")) {
+    return imageValue;
+  }
+
+  const formData = new FormData();
+  formData.append("file", dataUrlToFile(imageValue, outputFormat));
+
+  const res = await fetch(`${getApiBaseUrl(dbAddress)}/covers/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error(`표지 이미지 업로드에 실패했습니다. (${res.status})`);
+
+  const data = await res.json();
+  if (!data.url) throw new Error("표지 이미지 URL을 받지 못했습니다.");
+  return data.url;
+}
+
 function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle) {
   return [
     "Create a polished vertical book cover illustration.",
@@ -132,15 +172,17 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
     const wasEditing = isEditing;
-    const payload = {
-      title, author, content, genre: bookGenre, style: coverStyle,
-      imageModel, imageSize, imageQuality, outputFormat,
-      coverImageUrl: tempPreviewImage,
-      userId: currentUser?.userId,
-      updatedAt: nowISO
-    };
 
     try {
+      const savedCoverImageUrl = await uploadCoverImageIfNeeded(tempPreviewImage, dbAddress, outputFormat);
+      const payload = {
+        title, author, content, genre: bookGenre, style: coverStyle,
+        imageModel, imageSize, imageQuality, outputFormat,
+        coverImageUrl: savedCoverImageUrl,
+        userId: currentUser?.userId,
+        updatedAt: nowISO
+      };
+
       if (isEditing) {
         const res = await fetch(`${dbAddress}/update/${selectedBook.id}`, {
           method: "PATCH",
