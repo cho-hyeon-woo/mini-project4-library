@@ -130,7 +130,6 @@ export default function App() {
 
   return (
     <>
-      {/* 🌾 전체 화면 배경 고정 레이어 */}
       <div style={{ 
         position: "fixed",
         top: 0,
@@ -142,15 +141,13 @@ export default function App() {
         pointerEvents: "none"
       }}>
         
-        {/* 흔들리는 밀밭 전경 배경 */}
         <div 
-          className="animate-wheat-sway"
           style={{
             position: "absolute",
-            bottom:"-1000px",
+            bottom:"-700px",
             inset: 0,
-            backgroundImage: `url('/Q6DUg.jpg')`,
-            backgroundSize: "auto 1920px",
+            backgroundImage: `url('/cover1.gif')`,
+            backgroundSize: "auto 1600px",
             backgroundPosition: "bottom center",
             opacity: 0.99, 
             mixBlendMode: "multiply",
@@ -162,7 +159,6 @@ export default function App() {
         <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
       </div>
 
-      {/* 📥 실제 콘텐츠 스크롤 구역 */}
       <div style={{ 
         position: "relative", 
         zIndex: 10, 
@@ -172,7 +168,6 @@ export default function App() {
         padding: "40px 20px"
       }}>
         
-        {/* 📥 반투명 아날로그 쉘 */}
         <div 
           className="app-shell" 
           style={{ 
