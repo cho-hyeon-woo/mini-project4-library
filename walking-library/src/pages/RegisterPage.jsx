@@ -44,9 +44,16 @@ async function uploadCoverImageIfNeeded(imageValue, dbAddress, outputFormat) {
   return data.url;
 }
 
-function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle) {
+function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle, imageSize) {
+  const orientation = imageSize === "1536x1024"
+    ? "horizontal (landscape)"
+    : imageSize === "1024x1024"
+      ? "square"
+      : "vertical (portrait)";
+
   return [
-    "Create a polished vertical book cover illustration.",
+    `Create a polished ${orientation} book cover illustration.`,
+    `The illustration must be composed specifically for a ${orientation} frame, fully filling the entire canvas edge-to-edge with no empty margins, borders, or letterboxing on any side.`,
     "Use an artistic, publication-ready style suitable for a Korean creative writing app.",
     `Genre: ${bookGenre}`,
     `Cover style: ${coverStyle}`,
@@ -107,7 +114,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
     abortControllerRef.current = controller;
 
     try {
-      let prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle);
+      let prompt = buildBookCoverPrompt(title, author, content, bookGenre, coverStyle, imageSize);
       if (localImageBase64) {
         const pureBase64 = localImageBase64.split(",")[1];
         const visionRes = await fetch("https://api.openai.com/v1/chat/completions", {
