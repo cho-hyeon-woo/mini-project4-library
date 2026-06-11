@@ -50,6 +50,10 @@ public class BookService{
             existing.setContent(book.getContent());
         }        if (book.getCoverImageUrl() != null) {
             existing.setCoverImageUrl(book.getCoverImageUrl());
+        }        if (book.getGenre() != null) {
+            existing.setGenre(book.getGenre());
+        }        if (book.getStyle() != null) {
+            existing.setStyle(book.getStyle());
         }
         existing.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(existing);

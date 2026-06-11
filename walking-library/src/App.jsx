@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { BookOpen, UserRound } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import BookDetail from "./components/BookDetail";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import MyPage from "./pages/MyPage";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
 
   const [selectedBook, setSelectedBook] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [registerPageSessionKey, setRegisterPageSessionKey] = useState(0);
 
   const [detailViewSource, setDetailViewSource] = useState(null);
   const recommendDetailRef = useRef(null);

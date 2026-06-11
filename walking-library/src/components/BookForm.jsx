@@ -131,7 +131,7 @@ export default function BookForm({
         <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "15px", minWidth: "320px" }}>
           <div style={{ width: "100%", height: "440px", border: tempPreviewImage ? "1px solid #ddd" : "2px dashed #ccc", borderRadius: "8px", background: "#fafafa", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: tempPreviewImage ? "0" : "20px", boxSizing: "border-box", textAlign: "center", overflow: "hidden" }}>
             {tempPreviewImage ? (
-              <img src={tempPreviewImage} alt="표지 미리보기" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={tempPreviewImage} alt="표지 미리보기" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             ) : (
               <>
                 <ImageIcon size={42} color="#94a3b8" style={{ marginBottom: "10px" }} aria-hidden="true" />
