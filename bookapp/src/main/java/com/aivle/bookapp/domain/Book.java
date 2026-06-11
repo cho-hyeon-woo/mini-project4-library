@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.util.List;
 
 //@Table(name = "BOOK2")     // Table 어노테이션 테스트
 @Entity
@@ -52,4 +53,7 @@ public class Book {
     private LocalDateTime updatedAt;
 
     private Long userId;
+
+    @ManyToMany(mappedBy = "books")
+    private List<Tag> tags;
 }
