@@ -298,7 +298,7 @@ export default function App() {
                     <div style={{ flex: 1, minWidth: "280px" }}>
                       <h4 style={{ margin: "0 0 6px 0", fontSize: "22px", color: "#1c1917", fontStyle: "italic", fontWeight: "800" }}>{randomBook.title}</h4>
                       <p style={{ margin: "0 0 15px 0", color: "#78716c", fontSize: "14px" }}>
-                        <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span> 에세이
+                        <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span>
                       </p>
                       <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6" }}>
                         “ {randomBook.content} ”
