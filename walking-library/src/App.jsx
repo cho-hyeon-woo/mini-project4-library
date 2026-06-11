@@ -45,7 +45,10 @@ export default function App() {
   const fetchBooks = async () => {
     try {
       const res = await fetch(dbAddress);
-      if (!res.ok) throw new Error("도서 목록을 불러오지 못했습니다.");
+      if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || "도서 목록을 불러오지 못했습니다.");
+    }
       const data = await res.json();
       setBooks(data);
       if (data.length > 0 && !randomBook) {
@@ -53,6 +56,13 @@ export default function App() {
       }
     } catch (err) {
       console.error("데이터 로딩 실패:", err);
+
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("서버와 연결할 수 없습니다.");
+      }
+      else {
+        toast.error(err.message);
+      }
     }
   };
 
@@ -62,14 +72,18 @@ export default function App() {
     if (window.confirm("정말 이 책을 삭제하시겠습니까?")) {
       try {
         const res = await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("도서 삭제 요청에 실패했습니다.");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+
+          throw new Error(errorData.message || "책 삭제에 실패했습니다.")
+        }
         setSelectedBook(null);
         setDetailViewSource(null);
         if (randomBook?.id === id) setRandomBook(null);
         fetchBooks();
         toast.success("도서가 삭제되었습니다.");
       } catch (err) {
-        toast.error(err.message || "도서 삭제에 실패했습니다.");
+        toast.error(err.message);
       }
     }
   };
@@ -86,13 +100,17 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: accountName, password: accountPassword }),
       });
-      if (!res.ok) throw new Error("회원 정보 수정에 실패했습니다.");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+
+        throw new Error(errorData.message || "회원 정보 수정에 실패했습니다.");
+      }
       const updated = await res.json();
       setCurrentUser(updated);
       setShowAccountEdit(false);
       toast.success("회원 정보가 수정되었습니다.");
     } catch (err) {
-      toast.error(err.message || "회원 정보 수정에 실패했습니다.");
+      toast.error(err.message);
     }
   };
 

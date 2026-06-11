@@ -90,6 +90,13 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
       setBookGenre(selectedBook.genre || "실용서적");
       setCoverStyle(selectedBook.style || "미니멀");
       setTempPreviewImage(selectedBook.coverImageUrl || "");
+    } else {
+      // 새 등록일 경우 (컴포넌트 재사용 대비)
+      setTitle("");
+      setAuthor("");
+      setContent("");
+      setTempPreviewImage("");
+      setLocalImageBase64("");
     }
   }, [isEditing, selectedBook]);
 
@@ -176,6 +183,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
     if (abortControllerRef.current) abortControllerRef.current.abort();
   };
 
+  // 💡 여기에 예외 처리 3중 방어막이 적용되었습니다!
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
     const wasEditing = isEditing;
@@ -196,20 +204,40 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...selectedBook, ...payload }),
         });
-        if (!res.ok) throw new Error("도서 수정 요청에 실패했습니다.");
+        
+        // 백엔드 에러 메시지 뜯어보기
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || "도서 수정 요청에 실패했습니다.");
+        }
       } else {
         const res = await fetch(dbAddress, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...payload, createdAt: nowISO }),
         });
-        if (!res.ok) throw new Error("도서 등록 요청에 실패했습니다.");
+        
+        // 백엔드 에러 메시지 뜯어보기
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || "도서 등록 요청에 실패했습니다.");
+        }
       }
 
       toast.success(wasEditing ? "도서 정보가 수정되었습니다." : "도서가 등록되었습니다.");
+      
+      // 저장 성공 후 임시 이미지 초기화
+      setTempPreviewImage("");
+      setLocalImageBase64("");
       onSaveSuccess();
+      
     } catch (err) {
-      toast.error(err.message || "도서 저장에 실패했습니다.");
+      // 서버 꺼짐 감지 및 에러 알림 띄우기
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("서버와 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요. 🔌");
+      } else {
+        toast.error(err.message || "도서 저장에 실패했습니다.");
+      }
     }
   };
 
