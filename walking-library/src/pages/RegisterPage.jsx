@@ -44,6 +44,28 @@ async function uploadCoverImageIfNeeded(imageValue, dbAddress, outputFormat) {
   return data.url;
 }
 
+function translateOpenAiError(message) {
+  if (!message) return "OpenAI 서버 응답 실패";
+
+  if (message.includes("rejected by the safety system")) {
+    return "입력하신 제목/내용/저자 정보가 OpenAI의 콘텐츠 안전 정책에 의해 거부되었습니다. 실존 인물명, 유명 작품/캐릭터명, 폭력적이거나 선정적인 표현이 포함되어 있지 않은지 확인해 주세요.";
+  }
+  if (message.includes("content_policy_violation") || message.includes("content policy")) {
+    return "입력하신 내용이 OpenAI의 콘텐츠 정책에 위반되어 표지 생성이 거부되었습니다. 책 제목/내용/저자 정보를 수정한 후 다시 시도해 주세요.";
+  }
+  if (message.includes("Incorrect API key") || message.includes("invalid_api_key")) {
+    return "OpenAI API Key가 올바르지 않습니다. API Key를 다시 확인해 주세요.";
+  }
+  if (message.includes("model") && (message.includes("does not exist") || message.includes("not found"))) {
+    return "선택한 이미지 모델을 사용할 수 없습니다. 모델 설정을 확인해 주세요.";
+  }
+  if (message.includes("Rate limit") || message.includes("rate_limit")) {
+    return "OpenAI API 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.";
+  }
+
+  return message;
+}
+
 function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle, imageSize) {
   const orientation = imageSize === "1792x1024"
     ? "horizontal (landscape)"
@@ -159,7 +181,10 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
         signal: controller.signal
       });
 
-      if (!openAiRes.ok) throw new Error("OpenAI 서버 응답 실패");
+      if (!openAiRes.ok) {
+        const errorData = await openAiRes.json().catch(() => ({}));
+        throw new Error(translateOpenAiError(errorData.error?.message));
+      }
 
       const data = await openAiRes.json();
       const b64Json = data.data?.[0]?.b64_json;
