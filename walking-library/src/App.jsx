@@ -128,65 +128,62 @@ export default function App() {
 
   return (
     <>
-      {/* 🌾 1. 전체 화면을 완벽하게 꽉 채우는 절대 고정 배경 레이어 */}
+      {/* 🌾 1. 전체 화면 감성 그라데이션 배경 고정 레이어 (맨 위는 깔끔한 흰색) */}
       <div style={{ 
-        position: "fixed", // scroll 시 배경이 깨지지 않도록 화면에 박제
+        position: "fixed",
         top: 0,
         left: 0,
         width: "100vw", 
         height: "100vh",
         zIndex: 0,
-        // 아래로 갈수록 노란빛이 아늑하게 물드는 감성 레벨 그라데이션
-        background: "linear-gradient(to bottom, #ffff 0%, #ffedd5 100%)", 
+        background: "linear-gradient(to bottom, #ffffff 0%, #ffedd5 100%)", 
         pointerEvents: "none"
       }}>
         
-        {/* 🌾 2. 이번엔 진짜 '드넓은 황금빛 밀밭' 이미지 (스케일 및 마스크 전면 교정) */}
+        {/* 🌾 2. 흔들리는 진짜 밀밭 전경 배경 */}
         <div 
           className="animate-wheat-sway"
           style={{
             position: "absolute",
             inset: 0,
-            // 💡 이미지 교체: 클로즈업 밀알이 아닌, 지평선이 보이는 진짜 살랑살랑한 밀밭 전경
             backgroundImage: `url('https://images.unsplash.com/photo-1508962914676-134849a727f0?auto=format&fit=crop&q=80&w=1920')`,
             backgroundSize: "cover",
             backgroundPosition: "bottom center",
-            opacity: 0.22, // 텍스트 가독성을 보존하기 위한 투명도
+            opacity: 0.22, 
             mixBlendMode: "multiply",
-            // 위쪽 30%는 부드러운 화이트로 날리고 아래로 갈수록 선명해지는 마스크
             maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
           }}
         />
 
-        {/* 몽환적인 감성을 더해줄 초미세 블러 오버레이 */}
+        {/* 몽환적인 흐림 필터 */}
         <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
       </div>
 
-      {/* 📥 3. 실제 컨텐츠 스크롤 구역 (배경과 분리하여 화면 전체를 유연하게 사용) */}
+      {/* 📥 3. 실제 콘텐츠 스크롤 구역 */}
       <div style={{ 
         position: "relative", 
         zIndex: 10, 
         minHeight: "100vh", 
         width: "100%",
         boxSizing: "border-box",
-        padding: "40px 20px" // 상하단 여백을 주어 쉘이 시원하게 배치되도록 함
+        padding: "40px 20px"
       }}>
         
-        {/* 📥 4. 메인 컨텐츠 쉘 (뒤쪽의 밀밭이 은은하게 투고되는 고급스러운 Glassmorphism 카드) */}
+        {/* 📥 4. 독창적 감성이 주입된 반투명 아날로그 쉘 */}
         <div 
           className="app-shell" 
           style={{ 
-            padding: "30px", 
+            padding: "35px", 
             width: "100%", 
-            maxWidth: "1100px", // 💡 좀 더 와이드하게 확장하여 시원한 뷰 제공
+            maxWidth: "1100px", 
             margin: "0 auto", 
             fontFamily: "sans-serif", 
-            background: "rgba(255, 255, 255, 0.8)", // 반투명도 살짝 조절
+            background: "rgba(255, 255, 255, 0.75)", 
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
-            borderRadius: "20px", // 곡률을 조금 더 주어 트렌디하게 변경
-            boxShadow: "0 20px 40px rgba(120, 110, 90, 0.06)",
+            borderRadius: "24px", 
+            boxShadow: "0 25px 50px rgba(130, 115, 90, 0.05)",
             border: "1px solid rgba(255, 255, 255, 0.6)",
             boxSizing: "border-box" 
           }}
@@ -215,7 +212,7 @@ export default function App() {
             }}
           />
 
-          {/* [로그인 화면] */}
+          {/* 로그인 화면 */}
           {currentMenu === "login" && (
             <LoginPage
               onLogin={(user) => {
@@ -227,7 +224,7 @@ export default function App() {
             />
           )}
 
-          {/* [회원가입 화면] */}
+          {/* 회원가입 화면 */}
           {currentMenu === "signup" && (
             <SignupPage
               onSignupSuccess={(user) => {
@@ -239,28 +236,33 @@ export default function App() {
             />
           )}
 
-          {/* [홈 화면] */}
+          {/* 홈 화면 */}
           {currentMenu === "home" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "35px", width: "100%" }}>
 
-              {/* 이 달의 추천 도서 */}
+              {/* ✨ 이 달의 추천 도서 (감성 큰따옴표 레이아웃 및 액자 효과 부여) */}
               {randomBook && !searchQuery && (
-                <section className="recommend-section section-card">
-                  <h3 className="section-title" style={{ color: "#444" }}>이 달의 추천 도서</h3>
-                  <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-                    <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                <section className="recommend-section section-card" style={{ borderLeft: "5px solid #d97706", background: "rgba(255,255,255,0.4)" }}>
+                  <h3 className="section-title" style={{ color: "#444", letterSpacing: "-0.03em" }}>이 달의 추천 도서</h3>
+                  <div style={{ display: "flex", gap: "25px", alignItems: "center", flexWrap: "wrap" }}>
+                    <div style={{ width: "130px", height: "195px", background: "#f5f5f4", borderRadius: "8px", flexShrink: 0, overflow: "hidden", boxShadow: "4px 8px 20px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.05)" }}>
                       {randomBook.coverImageUrl
                         ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <div style={{ textAlign: "center", padding: "5px", fontSize: "11px", color: "#666" }}>생성된 이미지가 없습니다!</div>}
+                        : <div style={{ display: "flex", alignItems: "center", height:"100%", textAlign: "center", padding: "10px", fontSize: "12px", color: "#878681", fontWeight: "600" }}>{randomBook.title}</div>}
                     </div>
-                    <div style={{ flex: 1, textAlign: "center" }}>
-                      <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#292524" }}>{randomBook.title}</h4>
-                      <p style={{ margin: "0 0 10px 0", color: "#57534e", fontWeight: "bold" }}>
-                        {randomBook.author} <span style={{ fontWeight: "normal", color: "#78716c", fontSize: "13px" }}>글쓴이</span>
+                    <div style={{ flex: 1, minWidth: "280px" }}>
+                      <h4 style={{ margin: "0 0 6px 0", fontSize: "22px", color: "#1c1917", fontStyle: "italic", fontWeight: "800" }}>{randomBook.title}</h4>
+                      <p style={{ margin: "0 0 15px 0", color: "#78716c", fontSize: "14px" }}>
+                        <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span> 에세이
                       </p>
-                      <p style={{ margin: "0 0 15px 0", color: "#57534e", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
-                      <span className="detail-link" style={{ cursor: "pointer", color: "#d97706", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
-                        [자세히 보기]
+                      
+                      {/* 시의 한 구절 같은 인용구 디자인 적용 */}
+                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", borderLeft: "2px style #e7e5e4", color: "#444", fontSize: "14px", lineHeight: "1.6", fontStyle: "serif" }}>
+                        “ {randomBook.content} ”
+                      </div>
+                      
+                      <span className="detail-link" style={{ cursor: "pointer", color: "#b45309", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #b45309" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
+                        자세히 들여다보기 →
                       </span>
                     </div>
                   </div>
@@ -282,41 +284,68 @@ export default function App() {
                 </section>
               )}
 
-              {/* 도서 목록 */}
+              {/* 📚 도서 목록 (독창적 3D 회전 카드 및 감성 파스텔톤 입체화) */}
               <section className="book-list-section section-card">
-                <h3 className="section-title" style={{ color: "#444" }}>
-                  <BookOpen size={19} aria-hidden="true" style={{ color: "#d97706" }} />
-                  도서 목록 ({filteredBooks.length}권)
+                <h3 className="section-title" style={{ color: "#292524", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <BookOpen size={20} aria-hidden="true" style={{ color: "#d97706" }} />
+                  서재에 안착된 책 ({filteredBooks.length}권)
                 </h3>
-                <div className="book-grid">
-                  {filteredBooks.map((book) => (
-                    <motion.div
-                      key={book.id}
-                      className="book-card"
-                      onClick={() => handleOpenDetail(book, "list")}
-                      style={{ 
-                        textAlign: "center", 
-                        cursor: "pointer", 
-                        border: "1px solid rgba(220, 215, 200, 0.4)", 
-                        padding: "15px 10px", 
-                        borderRadius: "10px", 
-                        background: "rgba(255, 255, 255, 0.9)", 
-                        boxSizing: "border-box",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.01)"
-                      }}
-                      whileHover={{ y: -6, scale: 1.02, boxShadow: "0 8px 24px rgba(217, 119, 6, 0.06)" }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                    >
-                      <div className="book-cover-wrap" style={{ boxShadow: "0 4px 10px rgba(0,0,0,0.05)" }}>
-                        {book.coverImageUrl
-                          ? <img src={book.coverImageUrl} alt={book.title} />
-                          : <span className="book-cover-placeholder">{book.title}</span>}
-                      </div>
-                      <strong className="book-card-title" style={{ color: "#292524" }}>{book.title}</strong>
-                      <span className="book-card-author" style={{ color: "#78716c" }}>{book.author}</span>
-                    </motion.div>
-                  ))}
+                <div className="book-grid" style={{ perspective: "1000px" }}> {/* 3D 효과를 위한 원근법 축 추가 */}
+                  {filteredBooks.map((book, index) => {
+                    // 빈 표지에 입힐 파스텔 감성 북커버 컬러 스펙트럼
+                    const pastelColors = ["#f5f5f4", "#f4f1ea", "#edf2f4", "#f6eff2", "#eff4f0"];
+                    const selectColor = pastelColors[index % pastelColors.length];
+
+                    return (
+                      <motion.div
+                        key={book.id}
+                        className="book-card"
+                        onClick={() => handleOpenDetail(book, "list")}
+                        style={{ 
+                          textAlign: "center", 
+                          cursor: "pointer", 
+                          border: "1px solid rgba(217, 119, 6, 0.08)", 
+                          padding: "20px 15px", 
+                          borderRadius: "16px", 
+                          background: "rgba(255, 255, 255, 0.6)", 
+                          boxSizing: "border-box",
+                          boxShadow: "0 4px 12px rgba(120, 110, 90, 0.01)"
+                        }}
+                        // ⭐ 마우스 올리면 책이 비대칭 각도로 열리며 튀어나오는 아날로그 모션
+                        whileHover={{ 
+                          y: -10, 
+                          rotateY: 4, 
+                          scale: 1.03, 
+                          boxShadow: "0 20px 35px rgba(160, 110, 50, 0.12)",
+                          background: "rgba(255, 255, 255, 0.98)" 
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 350, damping: 24 }}
+                      >
+                        <div className="book-cover-wrap" style={{ 
+                          borderRadius: "8px", 
+                          overflow: "hidden",
+                          boxShadow: "3px 5px 15px rgba(50, 45, 40, 0.12)", // 현실적인 도서 그림자 두께감
+                          height: "175px",
+                          background: selectColor,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: "14px"
+                        }}>
+                          {book.coverImageUrl ? (
+                            <img src={book.coverImageUrl} alt={book.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            <span style={{ fontSize: "13px", mountaineering: "serif", fontWeight: "600", color: "#78716c", padding: "0 12px", lineHeight: "1.4" }}>
+                              {book.title}
+                            </span>
+                          )}
+                        </div>
+                        <strong className="book-card-title" style={{ display: "block", color: "#1c1917", fontSize: "15px", fontWeight: "700", marginBottom: "5px", letterSpacing: "-0.01em" }}>{book.title}</strong>
+                        <span className="book-card-author" style={{ fontSize: "12px", color: "#a8a29e", fontWeight: "500" }}>{book.author}</span>
+                      </motion.div>
+                    );
+                  })}
                 </div>
                 {filteredBooks.length === 0 && <p className="book-empty">검색된 도서가 없습니다.</p>}
 
