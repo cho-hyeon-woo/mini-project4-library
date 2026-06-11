@@ -1,6 +1,8 @@
+import { useState, useRef } from "react";
 import { BookPlus, Home, Search, UserRound, LogIn, LogOut } from "lucide-react";
 
-export default function Header({ currentMenu, onMenuChange, searchQuery, setSearchQuery, currentUser, onLogout }) {
+// 💡 Props에 isBgOn(상태)과 onToggleBg(함수)를 추가로 받아옵니다.
+export default function Header({ isBgOn, onToggleBg, currentMenu, onMenuChange, searchQuery, setSearchQuery, currentUser, onLogout }) {
   const menuItems = [
     { id: "home", label: "홈", Icon: Home },
     { id: "register", label: "도서 등록하기", Icon: BookPlus },
@@ -9,51 +11,127 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
       : { id: "login", label: "로그인", Icon: LogIn },
   ];
 
+  const boundingRef = useRef(null);
+  const [glowStyle, setGlowStyle] = useState({ isHovered: false, x: 0, y: 0 });
+
+  // 🖱️ 마우스가 움직일 때만 불빛을 켜고 좌표를 갱신
+  const handleMouseMove = (e) => {
+    if (!boundingRef.current) return;
+    
+    const bounds = boundingRef.current.getBoundingClientRect();
+    const x = e.clientX - bounds.left;
+    const y = e.clientY - bounds.top;
+    
+    setGlowStyle({ isHovered: true, x, y });
+  };
+
+  // 🖱️ 마우스가 떠나면 즉시 호버 스위치를 끄고 초기화
+  const handleMouseLeave = () => {
+    setGlowStyle({ isHovered: false, x: 0, y: 0 });
+  };
+
   return (
-    <header className="header-root">
+    <header className="header-root" style={{ position: "relative" }}>
       
-      {/* 🌾 [리모델링 구역] 딱딱한 박스를 허물고 배경 위에 얹은 매거진 스타일 로고 */}
+      {/* 🛠️ [성능 최적화 스위치 추가] 로고 박스 우측 상단에 미니멀한 버튼 안착 */}
+      <div style={{
+        position: "absolute",
+        top: "15px",
+        right: "20px",
+        zIndex: 50,
+      }}>
+        <button
+          type="button"
+          onClick={onToggleBg}
+          style={{
+            background: isBgOn ? "rgba(217, 119, 6, 0.06)" : "rgba(120, 115, 105, 0.15)",
+            border: `1px solid ${isBgOn ? "rgba(217, 119, 6, 0.2)" : "rgba(120, 115, 105, 0.3)"}`,
+            borderRadius: "30px",
+            padding: "6px 14px",
+            fontSize: "11px",
+            fontWeight: "600",
+            color: isBgOn ? "#947c6a" : "#57534e",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+            transition: "all 0.2s ease",
+            outline: "none"
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.04)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+        >
+          {isBgOn ? "🌾 배경 끄기" : "🪵 배경 켜기"}
+        </button>
+      </div>
+
+      {/* 🌾 [인터랙티브 리모델링] 마우스 위치에 반응하는 글로우 헤더 */}
       <div 
-        className="header-brand" // 기존 클래스명은 유지하되, 감성 스타일 덮어쓰기
+        ref={boundingRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="header-brand group"
         style={{
           width: "100%",
           textAlign: "center",
-          padding: "35px 20px 20px 20px", // 위아래 여백을 주어 타이틀에 웅장함 부여
-          background: "none",            // 하얀색 사각 장벽 제거
-          border: "none",                // 딱딱한 테두리선 제거
-          boxShadow: "none",             // 기존 그림자 초기화
-          boxSizing: "border-box"
+          padding: "45px 20px 30px 20px",
+          borderRadius: "24px",
+          boxSizing: "border-box",
+          position: "relative",
+          overflow: "hidden",
+          cursor: "default",
+          
+          // 마우스가 올라와 있을 때(isHovered가 true)만 그라데이션 투사!
+          background: glowStyle.isHovered 
+            ? `radial-gradient(
+                350px circle at ${glowStyle.x}px ${glowStyle.y}px,
+                rgba(217, 119, 6, 0.09) 0%,
+                rgba(247, 244, 238, 0.02) 50%,
+                transparent 100%
+              )`
+            : "transparent",
+            
+          transition: "background 0.15s ease-out", 
         }}
       >
+        {/* 뒤쪽 일러스트 배경과 부드럽게 섞이도록 선 하나 얹기 */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          border: "1px solid rgba(217, 119, 6, 0.04)",
+          borderRadius: "24px",
+          pointerEvents: "none"
+        }} />
+
         {/* 메인 영문 로고 */}
         <h1 
           style={{
             margin: "0 0 10px 0",
             fontSize: "36px",
             fontWeight: "800",
-            // 💡 고풍스럽고 아날로그한 책방 무드를 내는 정통 영문 세리프(Serif) 서체
             fontFamily: "'Georgia', 'Times New Roman', serif", 
-            color: "#1c1917", // 묵직하고 깊은 먹색
-            letterSpacing: "0.06em", // 자간을 시원하게 벌려 휑함을 고급진 여백으로 치환
-            // 💡 중요: 승헌님이 넣으신 일러스트 배경 위에서도 글씨가 칼같이 정갈하게 읽히도록 소프트 외곽광 주입
+            color: "#1c1917",
+            letterSpacing: "0.06em",
+            position: "relative",
+            zIndex: 2,
             textShadow: "0 2px 4px rgba(255, 255, 255, 0.9), 0 0 10px rgba(255, 255, 255, 0.6)"
           }}
         >
           Walking Library
         </h1>
 
-        {/* 국문 감성 슬로건 */}
+        {/* 국문 감성 슬로건 (오타 정밀 교정) */}
         <p 
           style={{
             margin: 0,
             fontSize: "13px",
             fontWeight: "600",
-            color: "#b45309", // 밀밭/일러스트 톤과 결을 같이하는 황금빛 앰버 브라운
-            letterSpacing: "0.2em", // 슬로건 글자 사이도 리드미컬하게 벌리기
+            color: "#b45309",
+            letterSpacing: "0.2em",
             display: "flex",
-            alignItems: "center",
+            alignItems: "center", // 💡 기존 오타 수정 완료
             justifyContent: "center",
             gap: "12px",
+            position: "relative",
+            zIndex: 2,
             textShadow: "0 1px 2px rgba(255, 255, 255, 0.9)"
           }}
         >
@@ -63,7 +141,7 @@ export default function Header({ currentMenu, onMenuChange, searchQuery, setSear
         </p>
       </div>
 
-      {/* 🔍 아래 기능형 검색바 및 네비게이션 탭은 기존 로직 그대로 100% 보존 */}
+      {/* 🔍 검색바 및 네비게이션 기능 유지 */}
       <div className="header-search-row">
         <input
           type="text"

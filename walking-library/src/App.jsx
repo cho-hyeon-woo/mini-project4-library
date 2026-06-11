@@ -13,7 +13,18 @@ import "react-toastify/dist/ReactToastify.css";
 export default function App() {
   const dbAddress = "http://localhost:8080/books";
 
-  const [currentUser, setCurrentUser] = useState(null);
+  // 💡 [개선] 새로고침 시 localStorage에서 유저 세션을 복원하여 로그인 유지를 보장합니다.
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem("walking_library_user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  // 💡 [추가] 배경 GIF 애니메이션 ON/OFF 상태 제어 (기본값 true)
+  const [isBgOn, setIsBgOn] = useState(() => {
+    const savedBgSetting = localStorage.getItem("walking_library_bg_on");
+    return savedBgSetting !== "false"; // 'false'로 명시적 저장된 게 아니라면 기본적으로 활성화
+  });
+
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,6 +69,16 @@ export default function App() {
 
   useEffect(() => { fetchBooks(); }, []);
 
+  // 💡 [추가] 배경 토글 핸들러 (상태를 반전시키고 로컬 스토리지에 박제)
+  const toggleBackground = () => {
+    setIsBgOn(prev => {
+      const nextState = !prev;
+      localStorage.setItem("walking_library_bg_on", nextState);
+      toast.info(nextState ? "배경 애니메이션을 켭니다." : "성능 최적화를 위해 배경을 끕니다.", { autoClose: 1500 });
+      return nextState;
+    });
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("정말 이 책을 삭제하시겠습니까?")) {
       try {
@@ -89,6 +110,7 @@ export default function App() {
       if (!res.ok) throw new Error("회원 정보 수정에 실패했습니다.");
       const updated = await res.json();
       setCurrentUser(updated);
+      localStorage.setItem("walking_library_user", JSON.stringify(updated)); // 세션 동기화
       setShowAccountEdit(false);
       toast.success("회원 정보가 수정되었습니다.");
     } catch (err) {
@@ -102,6 +124,7 @@ export default function App() {
       const res = await fetch(`http://localhost:8080/users/${currentUser.userId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("회원 탈퇴에 실패했습니다.");
       setCurrentUser(null);
+      localStorage.removeItem("walking_library_user"); // 세션 파기
       setShowAccountEdit(false);
       setCurrentMenu("home");
       handleCloseDetail();
@@ -130,6 +153,7 @@ export default function App() {
 
   return (
     <>
+      {/* 🌾 전체 화면 배경 고정 레이어 */}
       <div style={{ 
         position: "fixed",
         top: 0,
@@ -141,24 +165,28 @@ export default function App() {
         pointerEvents: "none"
       }}>
         
-        <div 
-          style={{
-            position: "absolute",
-            height:'1500px',
-            inset:0,
-            backgroundImage: `url('/cover1.gif')`,
-            backgroundSize: "cover",
-            backgroundPosition: "bottom center",
-            opacity: 0.90, 
-            mixBlendMode: "multiply",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
-          }}
-        />
+        {/* 💡 [개선] isBgOn 상태가 true일 때만 부하를 일으키는 GIF 컴포넌트를 DOM에 렌더링합니다 */}
+        {isBgOn && (
+          <div 
+            style={{
+              position: "absolute",
+              height: '1500px',
+              inset: 0,
+              backgroundImage: `url('/cover1.gif')`,
+              backgroundSize: "cover",
+              backgroundPosition: "bottom center",
+              opacity: 0.90, 
+              mixBlendMode: "multiply",
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
+            }}
+          />
+        )}
 
         <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
       </div>
 
+      {/* 📥 실제 콘텐츠 스크롤 구역 */}
       <div style={{ 
         position: "relative", 
         zIndex: 10, 
@@ -168,6 +196,7 @@ export default function App() {
         padding: "40px 20px"
       }}>
         
+        {/* 📥 반투명 아날로그 쉘 */}
         <div 
           className="app-shell" 
           style={{ 
@@ -185,7 +214,10 @@ export default function App() {
             boxSizing: "border-box" 
           }}
         >
+          {/* 💡 [개선] Header 컴포넌트에 배경 토글 상태와 함수를 Props로 주입합니다 */}
           <Header
+            isBgOn={isBgOn}
+            onToggleBg={toggleBackground}
             currentMenu={currentMenu}
             onMenuChange={(menu) => {
               if (menu === "login") { setCurrentMenu("login"); return; }
@@ -202,6 +234,7 @@ export default function App() {
             currentUser={currentUser}
             onLogout={() => {
               setCurrentUser(null);
+              localStorage.removeItem("walking_library_user"); // 로그아웃 시 세션 제거
               setCurrentMenu("home");
               setShowAccountEdit(false);
               handleCloseDetail();
@@ -214,6 +247,7 @@ export default function App() {
             <LoginPage
               onLogin={(user) => {
                 setCurrentUser(user);
+                localStorage.setItem("walking_library_user", JSON.stringify(user)); // 로그인 성공 시 세션 저장
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 환영합니다!`);
               }}
@@ -226,6 +260,7 @@ export default function App() {
             <SignupPage
               onSignupSuccess={(user) => {
                 setCurrentUser(user);
+                localStorage.setItem("walking_library_user", JSON.stringify(user)); // 회원가입 성공 후 자동 로그인 세션 저장
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 회원가입을 축하합니다!`);
               }}
