@@ -34,6 +34,7 @@ public class Book {
     @NotBlank
     private String author;
 
+    @Lob
     @Column(nullable = false)
     @NotBlank
     private String content;
@@ -43,7 +44,6 @@ public class Book {
 
     private String genre;
 
-    @Lob
     private String style;
 
     @CreatedDate
