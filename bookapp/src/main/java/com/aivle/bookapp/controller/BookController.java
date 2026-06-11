@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 import java.util.List;
 
@@ -44,6 +45,13 @@ public class BookController {
     public ResponseEntity<Book> getBook(@PathVariable Long id) {
         Book book = bookService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(book);
+    }
+
+    @PatchMapping("/{id}/cover")
+    public ResponseEntity<Book> updateCoverImage(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String coverImageUrl = request.get("coverImageUrl");
+        Book updated = bookService.updateCoverImage(id, coverImageUrl);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/user/{userId}")

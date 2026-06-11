@@ -10,21 +10,39 @@ import SignupPage from "./pages/SignupPage";
 import MyPage from "./pages/MyPage";
 import "react-toastify/dist/ReactToastify.css";
 
+const CURRENT_USER_SESSION_KEY = "walkingLibraryCurrentUser";
+
+const readSessionUser = () => {
+  try {
+    const storedUser = sessionStorage.getItem(CURRENT_USER_SESSION_KEY);
+    if (!storedUser) return null;
+
+    const user = JSON.parse(storedUser);
+    if (!user || user.userId == null) {
+      sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+      return null;
+    }
+
+    return user;
+  } catch {
+    sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+    return null;
+  }
+};
+
+const saveSessionUser = (user) => {
+  sessionStorage.setItem(CURRENT_USER_SESSION_KEY, JSON.stringify(user));
+};
+
+const clearSessionUser = () => {
+  sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+};
+
 export default function App() {
   const dbAddress = "http://localhost:8080/books";
+  
 
-  // 💡 [개선] 새로고침 시 localStorage에서 유저 세션을 복원하여 로그인 유지를 보장합니다.
-  const [currentUser, setCurrentUser] = useState(() => {
-    const savedUser = localStorage.getItem("walking_library_user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  // 💡 [추가] 배경 GIF 애니메이션 ON/OFF 상태 제어 (기본값 true)
-  const [isBgOn, setIsBgOn] = useState(() => {
-    const savedBgSetting = localStorage.getItem("walking_library_bg_on");
-    return savedBgSetting !== "false"; // 'false'로 명시적 저장된 게 아니라면 기본적으로 활성화
-  });
-
+  const [currentUser, setCurrentUser] = useState(() => readSessionUser());
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,6 +60,7 @@ export default function App() {
   const [showAccountEdit, setShowAccountEdit] = useState(false);
   const [accountName, setAccountName] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
+  
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearchQuery(searchQuery), 400);
@@ -56,7 +75,10 @@ export default function App() {
   const fetchBooks = async () => {
     try {
       const res = await fetch(dbAddress);
-      if (!res.ok) throw new Error("도서 목록을 불러오지 못했습니다.");
+      if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || "도서 목록을 불러오지 못했습니다.");
+    }
       const data = await res.json();
       setBooks(data);
       if (data.length > 0 && !randomBook) {
@@ -64,33 +86,37 @@ export default function App() {
       }
     } catch (err) {
       console.error("데이터 로딩 실패:", err);
+
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("서버와 연결할 수 없습니다.");
+      }
+      else {
+        toast.error(err.message);
+      }
     }
   };
 
   useEffect(() => { fetchBooks(); }, []);
 
-  // 💡 [추가] 배경 토글 핸들러 (상태를 반전시키고 로컬 스토리지에 박제)
-  const toggleBackground = () => {
-    setIsBgOn(prev => {
-      const nextState = !prev;
-      localStorage.setItem("walking_library_bg_on", nextState);
-      toast.info(nextState ? "배경 애니메이션을 켭니다." : "성능 최적화를 위해 배경을 끕니다.", { autoClose: 1500 });
-      return nextState;
-    });
-  };
+
+  
 
   const handleDelete = async (id) => {
     if (window.confirm("정말 이 책을 삭제하시겠습니까?")) {
       try {
         const res = await fetch(`${dbAddress}/${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("도서 삭제 요청에 실패했습니다.");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+
+          throw new Error(errorData.message || "책 삭제에 실패했습니다.")
+        }
         setSelectedBook(null);
         setDetailViewSource(null);
         if (randomBook?.id === id) setRandomBook(null);
         fetchBooks();
         toast.success("도서가 삭제되었습니다.");
       } catch (err) {
-        toast.error(err.message || "도서 삭제에 실패했습니다.");
+        toast.error(err.message);
       }
     }
   };
@@ -107,14 +133,18 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: accountName, password: accountPassword }),
       });
-      if (!res.ok) throw new Error("회원 정보 수정에 실패했습니다.");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+
+        throw new Error(errorData.message || "회원 정보 수정에 실패했습니다.");
+      }
       const updated = await res.json();
       setCurrentUser(updated);
-      localStorage.setItem("walking_library_user", JSON.stringify(updated)); // 세션 동기화
+      saveSessionUser(updated);
       setShowAccountEdit(false);
       toast.success("회원 정보가 수정되었습니다.");
     } catch (err) {
-      toast.error(err.message || "회원 정보 수정에 실패했습니다.");
+      toast.error(err.message);
     }
   };
 
@@ -124,7 +154,7 @@ export default function App() {
       const res = await fetch(`http://localhost:8080/users/${currentUser.userId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("회원 탈퇴에 실패했습니다.");
       setCurrentUser(null);
-      localStorage.removeItem("walking_library_user"); // 세션 파기
+      clearSessionUser();
       setShowAccountEdit(false);
       setCurrentMenu("home");
       handleCloseDetail();
@@ -153,7 +183,7 @@ export default function App() {
 
   return (
     <>
-      {/* 🌾 전체 화면 배경 고정 레이어 */}
+      
       <div style={{ 
         position: "fixed",
         top: 0,
@@ -164,26 +194,23 @@ export default function App() {
         background: "linear-gradient(to bottom, #ffffff 50%, #ffedd5 70%)", 
         pointerEvents: "none"
       }}>
-        
-        {/* 💡 [개선] isBgOn 상태가 true일 때만 부하를 일으키는 GIF 컴포넌트를 DOM에 렌더링합니다 */}
-        {isBgOn && (
-          <div 
-            style={{
-              position: "absolute",
-              height: '1500px',
-              inset: 0,
-              backgroundImage: `url('/cover1.gif')`,
-              backgroundSize: "cover",
-              backgroundPosition: "bottom center",
-              opacity: 0.90, 
-              mixBlendMode: "multiply",
-              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
-            }}
-          />
-        )}
-
-        <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
+        <div 
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url('/cover1.gif')`,
+            backgroundSize: "cover",
+            backgroundPosition: "bottom center",
+            opacity: 0.30
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.58) 52%, rgba(255,237,213,0.70) 100%)"
+          }}
+        />
       </div>
 
       {/* 📥 실제 콘텐츠 스크롤 구역 */}
@@ -205,19 +232,16 @@ export default function App() {
             maxWidth: "1100px", 
             margin: "0 auto", 
             fontFamily: "sans-serif", 
-            background: "rgba(255, 255, 255, 0.75)", 
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
+            background: "rgba(255, 255, 255, 0.88)", 
             borderRadius: "24px", 
-            boxShadow: "0 25px 50px rgba(130, 115, 90, 0.05)",
-            border: "1px solid rgba(255, 255, 255, 0.6)",
+            boxShadow: "0 18px 42px rgba(130, 115, 90, 0.08)",
+            border: "1px solid rgba(255, 255, 255, 0.82)",
             boxSizing: "border-box" 
           }}
         >
-          {/* 💡 [개선] Header 컴포넌트에 배경 토글 상태와 함수를 Props로 주입합니다 */}
+        
           <Header
-            isBgOn={isBgOn}
-            onToggleBg={toggleBackground}
+            
             currentMenu={currentMenu}
             onMenuChange={(menu) => {
               if (menu === "login") { setCurrentMenu("login"); return; }
@@ -325,7 +349,7 @@ export default function App() {
                     const selectColor = pastelColors[index % pastelColors.length];
 
                     return (
-                      <motion.div
+                      <div
                         key={book.id}
                         className="book-card"
                         onClick={() => handleOpenDetail(book, "list")}
@@ -339,15 +363,6 @@ export default function App() {
                           boxSizing: "border-box",
                           boxShadow: "0 4px 12px rgba(120, 110, 90, 0.01)"
                         }}
-                        whileHover={{ 
-                          y: -10, 
-                          rotateY: 4, 
-                          scale: 1.03, 
-                          boxShadow: "0 20px 35px rgba(160, 110, 50, 0.12)",
-                          background: "rgba(255, 255, 255, 0.98)" 
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 24 }}
                       >
                         <div className="book-cover-wrap" style={{ 
                           borderRadius: "8px", 
@@ -370,7 +385,7 @@ export default function App() {
                         </div>
                         <strong className="book-card-title" style={{ display: "block", color: "#1c1917", fontSize: "15px", fontWeight: "700", marginBottom: "5px", letterSpacing: "-0.01em" }}>{book.title}</strong>
                         <span className="book-card-author" style={{ fontSize: "12px", color: "#a8a29e", fontWeight: "500" }}>{book.author}</span>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
