@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, UserRound } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
