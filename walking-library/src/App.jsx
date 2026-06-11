@@ -10,10 +10,38 @@ import SignupPage from "./pages/SignupPage";
 import MyPage from "./pages/MyPage";
 import "react-toastify/dist/ReactToastify.css";
 
+const CURRENT_USER_SESSION_KEY = "walkingLibraryCurrentUser";
+
+const readSessionUser = () => {
+  try {
+    const storedUser = sessionStorage.getItem(CURRENT_USER_SESSION_KEY);
+    if (!storedUser) return null;
+
+    const user = JSON.parse(storedUser);
+    if (!user || user.userId == null) {
+      sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+      return null;
+    }
+
+    return user;
+  } catch {
+    sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+    return null;
+  }
+};
+
+const saveSessionUser = (user) => {
+  sessionStorage.setItem(CURRENT_USER_SESSION_KEY, JSON.stringify(user));
+};
+
+const clearSessionUser = () => {
+  sessionStorage.removeItem(CURRENT_USER_SESSION_KEY);
+};
+
 export default function App() {
   const dbAddress = "http://localhost:8080/books";
 
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => readSessionUser());
   const [currentMenu, setCurrentMenu] = useState("home");
   const [books, setBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,6 +135,7 @@ export default function App() {
       }
       const updated = await res.json();
       setCurrentUser(updated);
+      saveSessionUser(updated);
       setShowAccountEdit(false);
       toast.success("회원 정보가 수정되었습니다.");
     } catch (err) {
@@ -120,6 +149,7 @@ export default function App() {
       const res = await fetch(`http://localhost:8080/users/${currentUser.userId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("회원 탈퇴에 실패했습니다.");
       setCurrentUser(null);
+      clearSessionUser();
       setShowAccountEdit(false);
       setCurrentMenu("home");
       handleCloseDetail();
@@ -166,6 +196,7 @@ export default function App() {
           currentUser={currentUser}
           onLogout={() => {
             setCurrentUser(null);
+            clearSessionUser();
             setCurrentMenu("home");
             setShowAccountEdit(false);
             setIsEditing(false);
@@ -180,6 +211,7 @@ export default function App() {
           <LoginPage
             onLogin={(user) => {
               setCurrentUser(user);
+              saveSessionUser(user);
               setCurrentMenu("home");
               toast.success(`${user.name}님, 환영합니다!`);
             }}
@@ -192,6 +224,7 @@ export default function App() {
           <SignupPage
             onSignupSuccess={(user) => {
               setCurrentUser(user);
+              saveSessionUser(user);
               setCurrentMenu("home");
               toast.success(`${user.name}님, 회원가입을 축하합니다!`);
             }}
