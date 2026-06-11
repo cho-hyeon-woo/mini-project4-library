@@ -128,85 +128,203 @@ export default function App() {
 
   return (
     <>
-      <div className="app-shell" style={{ padding: "20px", width: "100%", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif", background: "#fff", boxSizing: "border-box" }}>
-        <Header
-          currentMenu={currentMenu}
-          onMenuChange={(menu) => {
-            if (menu === "login") { setCurrentMenu("login"); return; }
-            if ((menu === "register" || menu === "mypage") && !currentUser) {
-              toast.warning("로그인이 필요한 서비스입니다.");
-              setCurrentMenu("login");
-              return;
-            }
-            setCurrentMenu(menu);
-            handleCloseDetail();
-          }}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          currentUser={currentUser}
-          onLogout={() => {
-            setCurrentUser(null);
-            setCurrentMenu("home");
-            setShowAccountEdit(false);
-            handleCloseDetail();
-            toast.info("로그아웃 되었습니다.");
+      {/* 🌾 1. 전체 화면을 완벽하게 꽉 채우는 절대 고정 배경 레이어 */}
+      <div style={{ 
+        position: "fixed", // scroll 시 배경이 깨지지 않도록 화면에 박제
+        top: 0,
+        left: 0,
+        width: "100vw", 
+        height: "100vh",
+        zIndex: 0,
+        // 아래로 갈수록 노란빛이 아늑하게 물드는 감성 레벨 그라데이션
+        background: "linear-gradient(to bottom, #ffff 0%, #ffedd5 100%)", 
+        pointerEvents: "none"
+      }}>
+        
+        {/* 🌾 2. 이번엔 진짜 '드넓은 황금빛 밀밭' 이미지 (스케일 및 마스크 전면 교정) */}
+        <div 
+          className="animate-wheat-sway"
+          style={{
+            position: "absolute",
+            inset: 0,
+            // 💡 이미지 교체: 클로즈업 밀알이 아닌, 지평선이 보이는 진짜 살랑살랑한 밀밭 전경
+            backgroundImage: `url('https://images.unsplash.com/photo-1508962914676-134849a727f0?auto=format&fit=crop&q=80&w=1920')`,
+            backgroundSize: "cover",
+            backgroundPosition: "bottom center",
+            opacity: 0.22, // 텍스트 가독성을 보존하기 위한 투명도
+            mixBlendMode: "multiply",
+            // 위쪽 30%는 부드러운 화이트로 날리고 아래로 갈수록 선명해지는 마스크
+            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
           }}
         />
 
-        {/* 로그인 화면 */}
-        {currentMenu === "login" && (
-          <LoginPage
-            onLogin={(user) => {
-              setCurrentUser(user);
-              setCurrentMenu("home");
-              toast.success(`${user.name}님, 환영합니다!`);
+        {/* 몽환적인 감성을 더해줄 초미세 블러 오버레이 */}
+        <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
+      </div>
+
+      {/* 📥 3. 실제 컨텐츠 스크롤 구역 (배경과 분리하여 화면 전체를 유연하게 사용) */}
+      <div style={{ 
+        position: "relative", 
+        zIndex: 10, 
+        minHeight: "100vh", 
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "40px 20px" // 상하단 여백을 주어 쉘이 시원하게 배치되도록 함
+      }}>
+        
+        {/* 📥 4. 메인 컨텐츠 쉘 (뒤쪽의 밀밭이 은은하게 투고되는 고급스러운 Glassmorphism 카드) */}
+        <div 
+          className="app-shell" 
+          style={{ 
+            padding: "30px", 
+            width: "100%", 
+            maxWidth: "1100px", // 💡 좀 더 와이드하게 확장하여 시원한 뷰 제공
+            margin: "0 auto", 
+            fontFamily: "sans-serif", 
+            background: "rgba(255, 255, 255, 0.8)", // 반투명도 살짝 조절
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            borderRadius: "20px", // 곡률을 조금 더 주어 트렌디하게 변경
+            boxShadow: "0 20px 40px rgba(120, 110, 90, 0.06)",
+            border: "1px solid rgba(255, 255, 255, 0.6)",
+            boxSizing: "border-box" 
+          }}
+        >
+          <Header
+            currentMenu={currentMenu}
+            onMenuChange={(menu) => {
+              if (menu === "login") { setCurrentMenu("login"); return; }
+              if ((menu === "register" || menu === "mypage") && !currentUser) {
+                toast.warning("로그인이 필요한 서비스입니다.");
+                setCurrentMenu("login");
+                return;
+              }
+              setCurrentMenu(menu);
+              handleCloseDetail();
             }}
-            onGoRegister={() => setCurrentMenu("signup")}
-          />
-        )}
-
-        {/* 회원가입 화면 */}
-        {currentMenu === "signup" && (
-          <SignupPage
-            onSignupSuccess={(user) => {
-              setCurrentUser(user);
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            currentUser={currentUser}
+            onLogout={() => {
+              setCurrentUser(null);
               setCurrentMenu("home");
-              toast.success(`${user.name}님, 회원가입을 축하합니다!`);
+              setShowAccountEdit(false);
+              handleCloseDetail();
+              toast.info("로그아웃 되었습니다.");
             }}
-            onGoLogin={() => setCurrentMenu("login")}
           />
-        )}
 
-        {/* 홈 화면 */}
-        {currentMenu === "home" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
+          {/* [로그인 화면] */}
+          {currentMenu === "login" && (
+            <LoginPage
+              onLogin={(user) => {
+                setCurrentUser(user);
+                setCurrentMenu("home");
+                toast.success(`${user.name}님, 환영합니다!`);
+              }}
+              onGoRegister={() => setCurrentMenu("signup")}
+            />
+          )}
 
-            {/* 이 달의 추천 도서 */}
-            {randomBook && !searchQuery && (
-              <section className="recommend-section section-card">
-                <h3 className="section-title">이 달의 추천 도서</h3>
-                <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-                  <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb" }}>
-                    {randomBook.coverImageUrl
-                      ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : <div style={{ textAlign: "center", padding: "5px", fontSize: "11px", color: "#666" }}>생성된 이미지가 없습니다!</div>}
+          {/* [회원가입 화면] */}
+          {currentMenu === "signup" && (
+            <SignupPage
+              onSignupSuccess={(user) => {
+                setCurrentUser(user);
+                setCurrentMenu("home");
+                toast.success(`${user.name}님, 회원가입을 축하합니다!`);
+              }}
+              onGoLogin={() => setCurrentMenu("login")}
+            />
+          )}
+
+          {/* [홈 화면] */}
+          {currentMenu === "home" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "30px", width: "100%" }}>
+
+              {/* 이 달의 추천 도서 */}
+              {randomBook && !searchQuery && (
+                <section className="recommend-section section-card">
+                  <h3 className="section-title" style={{ color: "#444" }}>이 달의 추천 도서</h3>
+                  <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+                    <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                      {randomBook.coverImageUrl
+                        ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        : <div style={{ textAlign: "center", padding: "5px", fontSize: "11px", color: "#666" }}>생성된 이미지가 없습니다!</div>}
+                    </div>
+                    <div style={{ flex: 1, textAlign: "center" }}>
+                      <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#292524" }}>{randomBook.title}</h4>
+                      <p style={{ margin: "0 0 10px 0", color: "#57534e", fontWeight: "bold" }}>
+                        {randomBook.author} <span style={{ fontWeight: "normal", color: "#78716c", fontSize: "13px" }}>글쓴이</span>
+                      </p>
+                      <p style={{ margin: "0 0 15px 0", color: "#57534e", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
+                      <span className="detail-link" style={{ cursor: "pointer", color: "#d97706", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
+                        [자세히 보기]
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ flex: 1, textAlign: "center" }}>
-                    <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
-                    <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>
-                      {randomBook.author} <span style={{ fontWeight: "normal", color: "#999", fontSize: "13px" }}>글쓴이</span>
-                    </p>
-                    <p style={{ margin: "0 0 15px 0", color: "#666", fontSize: "14px", lineHeight: "1.4" }}>{randomBook.content}</p>
-                    <span className="detail-link" style={{ cursor: "pointer", color: "#007bff", fontSize: "13px", fontWeight: "bold" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
-                      [자세히 보기]
-                    </span>
+                  <div ref={recommendDetailRef}>
+                    <AnimatePresence mode="wait">
+                      {selectedBook && detailViewSource === "recommend" && (
+                        <motion.div
+                          key={`recommend-${selectedBook.id}`}
+                          initial={{ opacity: 0, y: 14 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.22, ease: "easeOut" }}
+                        >
+                          <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
+                </section>
+              )}
+
+              {/* 도서 목록 */}
+              <section className="book-list-section section-card">
+                <h3 className="section-title" style={{ color: "#444" }}>
+                  <BookOpen size={19} aria-hidden="true" style={{ color: "#d97706" }} />
+                  도서 목록 ({filteredBooks.length}권)
+                </h3>
+                <div className="book-grid">
+                  {filteredBooks.map((book) => (
+                    <motion.div
+                      key={book.id}
+                      className="book-card"
+                      onClick={() => handleOpenDetail(book, "list")}
+                      style={{ 
+                        textAlign: "center", 
+                        cursor: "pointer", 
+                        border: "1px solid rgba(220, 215, 200, 0.4)", 
+                        padding: "15px 10px", 
+                        borderRadius: "10px", 
+                        background: "rgba(255, 255, 255, 0.9)", 
+                        boxSizing: "border-box",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.01)"
+                      }}
+                      whileHover={{ y: -6, scale: 1.02, boxShadow: "0 8px 24px rgba(217, 119, 6, 0.06)" }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                    >
+                      <div className="book-cover-wrap" style={{ boxShadow: "0 4px 10px rgba(0,0,0,0.05)" }}>
+                        {book.coverImageUrl
+                          ? <img src={book.coverImageUrl} alt={book.title} />
+                          : <span className="book-cover-placeholder">{book.title}</span>}
+                      </div>
+                      <strong className="book-card-title" style={{ color: "#292524" }}>{book.title}</strong>
+                      <span className="book-card-author" style={{ color: "#78716c" }}>{book.author}</span>
+                    </motion.div>
+                  ))}
                 </div>
-                <div ref={recommendDetailRef}>
+                {filteredBooks.length === 0 && <p className="book-empty">검색된 도서가 없습니다.</p>}
+
+                <div ref={listDetailRef}>
                   <AnimatePresence mode="wait">
-                    {selectedBook && detailViewSource === "recommend" && (
+                    {selectedBook && detailViewSource === "list" && (
                       <motion.div
-                        key={`recommend-${selectedBook.id}`}
+                        key={`list-${selectedBook.id}`}
                         initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
@@ -218,161 +336,115 @@ export default function App() {
                   </AnimatePresence>
                 </div>
               </section>
-            )}
-
-            {/* 도서 목록 */}
-            <section className="book-list-section section-card">
-              <h3 className="section-title">
-                <BookOpen size={19} aria-hidden="true" />
-                도서 목록 ({filteredBooks.length}권)
-              </h3>
-              <div className="book-grid">
-                {filteredBooks.map((book) => (
-                  <motion.div
-                    key={book.id}
-                    className="book-card"
-                    onClick={() => handleOpenDetail(book, "list")}
-                    style={{ textAlign: "center", cursor: "pointer", border: "1px solid #eee", padding: "10px", borderRadius: "6px", background: "#fff", boxSizing: "border-box" }}
-                    whileHover={{ y: -6, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                  >
-                    <div className="book-cover-wrap">
-                      {book.coverImageUrl
-                        ? <img src={book.coverImageUrl} alt={book.title} />
-                        : <span className="book-cover-placeholder">{book.title}</span>}
-                    </div>
-                    <strong className="book-card-title">{book.title}</strong>
-                    <span className="book-card-author">{book.author}</span>
-                  </motion.div>
-                ))}
-              </div>
-              {filteredBooks.length === 0 && <p className="book-empty">검색된 도서가 없습니다.</p>}
-
-              <div ref={listDetailRef}>
-                <AnimatePresence mode="wait">
-                  {selectedBook && detailViewSource === "list" && (
-                    <motion.div
-                      key={`list-${selectedBook.id}`}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.22, ease: "easeOut" }}
-                    >
-                      <BookDetail selectedBook={selectedBook} onClose={handleCloseDetail} isReadOnly={true} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* 도서 등록/수정 페이지 */}
-        {currentMenu === "register" && (
-          <RegisterPage
-            dbAddress={dbAddress}
-            currentUser={currentUser}
-            selectedBook={selectedBook}
-            isEditing={isEditing}
-            onSaveSuccess={() => {
-              setIsEditing(false);
-              setSelectedBook(null);
-              handleCloseDetail();
-              fetchBooks();
-              setCurrentMenu("home");
-            }}
-            onCancel={() => {
-              setIsEditing(false);
-              setSelectedBook(null);
-              setCurrentMenu("home");
-            }}
-          />
-        )}
-
-        {/* 마이 페이지 */}
-        {currentMenu === "mypage" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                <UserRound size={21} aria-hidden="true" />
-                {currentUser?.name}님의 서재
-              </h3>
-              <button
-                type="button"
-                className="btn-outline"
-                style={{ width: "auto", flexShrink: 0, padding: "8px 14px", fontSize: "13px", marginBottom: 0 }}
-                onClick={() => {
-                  setAccountName(currentUser?.name || "");
-                  setAccountPassword(currentUser?.password || "");
-                  setShowAccountEdit((prev) => !prev);
-                }}
-              >
-                계정 관리
-              </button>
             </div>
+          )}
 
-            {showAccountEdit && (
-              <div className="auth-wrapper" style={{ minHeight: "auto" }}>
-                <div className="auth-card">
-                  <div className="auth-logo">
-                    <div className="auth-logo-icon">
-                      <UserRound size={26} color="#ffa042" />
+          {/* 도서 등록/수정 페이지 */}
+          {currentMenu === "register" && (
+            <RegisterPage
+              dbAddress={dbAddress}
+              currentUser={currentUser}
+              selectedBook={selectedBook}
+              isEditing={isEditing}
+              onSaveSuccess={() => {
+                setIsEditing(false);
+                setSelectedBook(null);
+                handleCloseDetail();
+                fetchBooks();
+                setCurrentMenu("home");
+              }}
+              onCancel={() => {
+                setIsEditing(false);
+                setSelectedBook(null);
+                setCurrentMenu("home");
+              }}
+            />
+          )}
+
+          {/* 마이 페이지 */}
+          {currentMenu === "mypage" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <UserRound size={21} aria-hidden="true" style={{ color: "#d97706" }} />
+                  {currentUser?.name}님의 서재
+                </h3>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  style={{ width: "auto", flexShrink: 0, padding: "8px 14px", fontSize: "13px", marginBottom: 0 }}
+                  onClick={() => {
+                    setAccountName(currentUser?.name || "");
+                    setAccountPassword(currentUser?.password || "");
+                    setShowAccountEdit((prev) => !prev);
+                  }}
+                >
+                  계정 관리
+                </button>
+              </div>
+
+              {showAccountEdit && (
+                <div className="auth-wrapper" style={{ minHeight: "auto" }}>
+                  <div className="auth-card">
+                    <div className="auth-logo">
+                      <div className="auth-logo-icon">
+                        <UserRound size={26} color="#ffa042" />
+                      </div>
+                      <h2>계정 관리</h2>
+                      <p>회원 정보를 수정하거나 탈퇴할 수 있어요</p>
                     </div>
-                    <h2>계정 관리</h2>
-                    <p>회원 정보를 수정하거나 탈퇴할 수 있어요</p>
-                  </div>
 
-                  <div className="form-group">
-                    <label className="form-label">이름</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={accountName}
-                      onChange={(e) => setAccountName(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">비밀번호</label>
-                    <input
-                      type="password"
-                      className="form-input"
-                      value={accountPassword}
-                      onChange={(e) => setAccountPassword(e.target.value)}
-                    />
-                  </div>
+                    <div className="form-group">
+                      <label className="form-label">이름</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={accountName}
+                        onChange={(e) => setAccountName(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">비밀번호</label>
+                      <input
+                        type="password"
+                        className="form-input"
+                        value={accountPassword}
+                        onChange={(e) => setAccountPassword(e.target.value)}
+                      />
+                    </div>
 
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <button type="button" className="btn-primary" style={{ flex: 1, marginBottom: 0 }} onClick={handleUpdateAccount}>
-                      수정하기
-                    </button>
-                    <button type="button" className="btn-outline" style={{ flex: 1, marginBottom: 0 }} onClick={handleDeleteAccount}>
-                      계정 탈퇴
-                    </button>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button type="button" className="btn-primary" style={{ flex: 1, marginBottom: 0 }} onClick={handleUpdateAccount}>
+                        수정하기
+                      </button>
+                      <button type="button" className="btn-outline" style={{ flex: 1, marginBottom: 0 }} onClick={handleDeleteAccount}>
+                        계정 탈퇴
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {!showAccountEdit && (
-              <>
-                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
+              {!showAccountEdit && (
+                <>
+                  <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
 
-                <BookDetail
-                  selectedBook={selectedBook}
-                  onStartEdit={startEdit}
-                  onDelete={handleDelete}
-                  onClose={handleCloseDetail}
-                  isReadOnly={false}
-                  books={books.filter(b => b.userId === currentUser?.userId)}
-                  onSelectBook={(book) => setSelectedBook(book)}
-                  isMyPage={true}
-                  currentUser={currentUser}
-                />
-              </>
-            )}
-          </div>
-        )}
+                  <BookDetail
+                    selectedBook={selectedBook}
+                    onStartEdit={startEdit}
+                    onDelete={handleDelete}
+                    onClose={handleCloseDetail}
+                    isReadOnly={false}
+                    books={books.filter(b => b.userId === currentUser?.userId)}
+                    onSelectBook={(book) => setSelectedBook(book)}
+                    isMyPage={true}
+                    currentUser={currentUser}
+                  />
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       <ToastContainer
         position="top-right"

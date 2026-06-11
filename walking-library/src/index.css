@@ -109,3 +109,58 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+@keyframes wheatSway {
+  0% {
+    transform: scale(1.03) rotate(0deg) translateX(0px);
+  }
+  50% {
+    transform: scale(1.06) rotate(0.8deg) translateX(6px);
+  }
+  100% {
+    transform: scale(1.03) rotate(0deg) translateX(0px);
+  }
+}
+
+/* 1. 평소의 잔잔한 바람 (18초 주기로 느릿하고 평화롭게) */
+@keyframes wheatSway {
+  0% {
+    transform: scale(1.03) rotate(0deg) translateX(0px);
+  }
+  50% {
+    transform: scale(1.05) rotate(0.6deg) translateX(4px);
+  }
+  100% {
+    transform: scale(1.03) rotate(0deg) translateX(0px);
+  }
+}
+
+/* 2. 마우스를 올렸을 때 부는 신선한 바람 (회전 각도와 좌우 반경을 키움) */
+@keyframes wheatBreeze {
+  0% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+  25% {
+    transform: scale(1.07) rotate(-1.2deg) translateX(-6px);
+  }
+  75% {
+    transform: scale(1.07) rotate(1.2deg) translateX(6px);
+  }
+  100% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+}
+
+/* [기본 상태] 밀밭이 제자리에서 부드럽게 흔들림 */
+.animate-wheat-sway {
+  animation: wheatSway 18s ease-in-out infinite;
+  transform-origin: bottom center;
+  /* ⭐ 핵심: 평소 상태와 호버 상태가 바뀔 때 툭 끊기지 않고 1초 동안 스무스하게 전환됨 */
+  transition: all 1s ease-in-out; 
+}
+
+/* ⭐ [반응형 인터랙션] 화면 전체(html/body) 어디든 마우스가 올라가면 동작 */
+html:hover .animate-wheat-sway {
+  /* 5초 주기로 훨씬 역동적이고 기분 좋게 살랑살랑 흔들림 */
+  animation: wheatBreeze 5s ease-in-out infinite;
+}
