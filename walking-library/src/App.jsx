@@ -144,12 +144,12 @@ export default function App() {
         <div 
           style={{
             position: "absolute",
-            bottom:"-700px",
-            inset: 0,
+            height:'1500px',
+            inset:0,
             backgroundImage: `url('/cover1.gif')`,
-            backgroundSize: "auto 1600px",
+            backgroundSize: "cover",
             backgroundPosition: "bottom center",
-            opacity: 0.99, 
+            opacity: 0.90, 
             mixBlendMode: "multiply",
             maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
