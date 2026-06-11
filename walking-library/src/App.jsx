@@ -22,6 +22,7 @@ export default function App() {
 
   const [selectedBook, setSelectedBook] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [registerPageSessionKey, setRegisterPageSessionKey] = useState(0);
 
   const [detailViewSource, setDetailViewSource] = useState(null);
   const recommendDetailRef = useRef(null);
@@ -149,6 +150,8 @@ export default function App() {
             setCurrentUser(null);
             setCurrentMenu("home");
             setShowAccountEdit(false);
+            setIsEditing(false);
+            setRegisterPageSessionKey((key) => key + 1);
             handleCloseDetail();
             toast.info("로그아웃 되었습니다.");
           }}
@@ -274,8 +277,9 @@ export default function App() {
         )}
 
         {/* 도서 등록/수정 페이지 */}
-        {currentMenu === "register" && (
+        <div style={{ display: currentMenu === "register" ? "block" : "none" }}>
           <RegisterPage
+            key={registerPageSessionKey}
             dbAddress={dbAddress}
             currentUser={currentUser}
             selectedBook={selectedBook}
@@ -285,15 +289,17 @@ export default function App() {
               setSelectedBook(null);
               handleCloseDetail();
               fetchBooks();
+              setRegisterPageSessionKey((key) => key + 1);
               setCurrentMenu("home");
             }}
             onCancel={() => {
               setIsEditing(false);
               setSelectedBook(null);
+              setRegisterPageSessionKey((key) => key + 1);
               setCurrentMenu("home");
             }}
           />
-        )}
+        </div>
 
         {/* 마이 페이지 */}
         {currentMenu === "mypage" && (
