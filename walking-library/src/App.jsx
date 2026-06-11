@@ -138,7 +138,7 @@ export default function App() {
         width: "100vw", 
         height: "100vh",
         zIndex: 0,
-        background: "linear-gradient(to bottom, #ffffff 0%, #ffedd5 100%)", 
+        background: "linear-gradient(to bottom, #ffffff 50%, #ffedd5 70%)", 
         pointerEvents: "none"
       }}>
         
@@ -147,56 +147,17 @@ export default function App() {
           className="animate-wheat-sway"
           style={{
             position: "absolute",
+            bottom:"-1000px",
             inset: 0,
-            backgroundImage: `url('https://images.unsplash.com/photo-1508962914676-134849a727f0?auto=format&fit=crop&q=80&w=1920')`,
-            backgroundSize: "cover",
+            backgroundImage: `url('/Q6DUg.jpg')`,
+            backgroundSize: "auto 1920px",
             backgroundPosition: "bottom center",
-            opacity: 0.22, 
+            opacity: 0.99, 
             mixBlendMode: "multiply",
             maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
             WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
           }}
         />
-
-        {/* 📜 [좌측 여백] 아저씨 대신 들어간 감성 레터링 텍스트 1 */}
-        <div 
-          className="animate-wheat-sway"
-          style={{
-            position: "absolute",
-            top: "15%",
-            left: "4%",
-            writingMode: "vertical-rl", // 세로 정렬 마법
-            fontSize: "36px",
-            fontWeight: "800",
-            fontFamily: "serif",
-            color: "#7c2d12",
-            opacity: 0.05, // 배경처럼 은은하게 녹아들도록 설정
-            letterSpacing: "0.2em",
-            transformOrigin: "center left"
-          }}
-        >
-          책과 산책하는 시간
-        </div>
-
-        {/* 📜 [우측 여백] 아저씨 대신 들어간 감성 레터링 텍스트 2 */}
-        <div 
-          className="animate-wheat-sway"
-          style={{
-            position: "absolute",
-            bottom: "15%",
-            right: "4%",
-            writingMode: "vertical-rl",
-            fontSize: "24px",
-            fontWeight: "600",
-            fontFamily: "serif",
-            color: "#7c2d12",
-            opacity: 0.05,
-            letterSpacing: "0.3em",
-            transformOrigin: "center right"
-          }}
-        >
-          바람이 부는 날엔 서재를 걷는다
-        </div>
 
         <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
       </div>
@@ -326,7 +287,7 @@ export default function App() {
               <section className="book-list-section section-card">
                 <h3 className="section-title" style={{ color: "#292524", display: "flex", alignItems: "center", gap: "6px" }}>
                   <BookOpen size={20} aria-hidden="true" style={{ color: "#d97706" }} />
-                  서재에 안착된 책 ({filteredBooks.length}권)
+                  등록된 도서 ({filteredBooks.length}권)
                 </h3>
                 <div className="book-grid" style={{ perspective: "1000px" }}>
                   {filteredBooks.map((book, index) => {
