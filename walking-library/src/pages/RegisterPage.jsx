@@ -45,7 +45,7 @@ async function uploadCoverImageIfNeeded(imageValue, dbAddress, outputFormat) {
 }
 
 function buildBookCoverPrompt(title, author, content, bookGenre, coverStyle, imageSize) {
-  const orientation = imageSize === "1536x1024"
+  const orientation = imageSize === "1792x1024"
     ? "horizontal (landscape)"
     : imageSize === "1024x1024"
       ? "square"
@@ -70,7 +70,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [imageModel, setImageModel] = useState("gpt-image-1");
+  const [imageModel, setImageModel] = useState("gpt-image-2");
   const [imageSize, setImageSize] = useState("1024x1536");
   const [imageQuality, setImageQuality] = useState("low");
   const [outputFormat, setOutputFormat] = useState("png");

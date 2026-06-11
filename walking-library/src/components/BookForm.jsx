@@ -271,7 +271,7 @@ export default function BookForm({
                 <div style={{ flex: 1 }}>
                   <label className="form-label">이미지 모델</label>
                   <select value={imageModel} onChange={(e) => setImageModel(e.target.value)} disabled={disabled} style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
-                    <option value="gpt-image-1">gpt-image-1</option>
+                    <option value="gpt-image-2">gpt-image-2</option>
                     <option value="dall-e-3">dall-e-3</option>
                     <option value="dall-e-2">dall-e-2</option>
                   </select>
@@ -281,7 +281,7 @@ export default function BookForm({
                   <select value={imageSize} onChange={(e) => setImageSize(e.target.value)} disabled={disabled} style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="1024x1536">1024x1536 (세로형)</option>
                     <option value="1024x1024">1024x1024 (정사각형)</option>
-                    <option value="1536x1024">1536x1024 (가로형)</option>
+                    <option value="1792x1024">1792x1024 (가로형)</option>
                   </select>
                 </div>
               </div>
@@ -298,7 +298,7 @@ export default function BookForm({
                   <label className="form-label">파일 확장자</label>
                   <select value={outputFormat} onChange={(e) => setOutputFormat(e.target.value)} disabled={disabled} style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", fontSize: "13px" }}>
                     <option value="png">png</option>
-                    <option value="jpeg">jpeg</option>
+                    <option value="jpg">jpg</option>
                     <option value="webp">webp</option>
                   </select>
                 </div>
