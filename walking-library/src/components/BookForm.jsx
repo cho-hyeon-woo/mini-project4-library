@@ -29,7 +29,9 @@ export default function BookForm({
   isEditing, onSave, onFinalSave, onCancel,
   isGenerating, onCancelGeneration,
   tempPreviewImage, setTempPreviewImage,
-  setLocalImageBase64
+  setLocalImageBase64,
+  tags, setTags,
+  onGenerateTags
 }) {
   const [localPreview, setLocalPreview] = useState(null);
   const [searchTitle, setSearchTitle] = useState("");
@@ -343,6 +345,31 @@ export default function BookForm({
               rows="5"
               style={{ resize: "none", lineHeight: "1.5", background: disabled ? "#f5f5f5" : "#fff" }}
             />
+          </div>
+
+          {/* 태그 자동 생성 */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <label className="form-label">태그</label>
+              <button type="button" onClick={onGenerateTags}
+                style={{ padding: "6px 12px", background: "#6f42c1", color: "#fff", border: "none", borderRadius: "4px", fontSize: "12px", cursor: "pointer", fontWeight: "bold" }}>
+                ✨ AI 태그 생성
+              </button>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+              {tags.map((tag, idx) => (
+                <span key={idx} style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "20px", padding: "4px 10px", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}>
+                  #{tag}
+                  <button type="button" onClick={() => setTags(tags.filter((_, i) => i !== idx))}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: "14px", lineHeight: 1 }}>×</button>
+                </span>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input type="text" className="form-input" placeholder="태그 직접 추가"
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (e.target.value.trim()) { setTags([...tags, e.target.value.trim()]); e.target.value = ""; } } }}
+                />
+            </div>
           </div>
 
           {!tempPreviewImage && (

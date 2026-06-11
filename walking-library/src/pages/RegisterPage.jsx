@@ -98,6 +98,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
   const [outputFormat, setOutputFormat] = useState("png");
   const [bookGenre, setBookGenre] = useState("실용서적");
   const [coverStyle, setCoverStyle] = useState("미니멀");
+  const [tags, setTags] = useState([]);
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [tempPreviewImage, setTempPreviewImage] = useState("");
   const [localImageBase64, setLocalImageBase64] = useState("");
@@ -208,6 +209,41 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
     if (abortControllerRef.current) abortControllerRef.current.abort();
   };
 
+  const handleGenerateTags = async () => {
+  if (!content.trim()) {
+    toast.warning("줄거리를 먼저 입력해주세요.");
+    return;
+  }
+  if (!apiKey.trim()) {
+    toast.warning("OpenAI API Key를 입력해주세요.");
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{
+          role: "user",
+          content: `다음 책 줄거리를 읽고 태그를 5~7개 생성해줘. 반드시 JSON 배열 형식으로만 답해줘. 예시: ["태그1", "태그2"]\n\n줄거리: ${content}`
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    const parsed = JSON.parse(text);
+    setTags(parsed);
+    toast.success("태그가 생성되었습니다.");
+  } catch (err) {
+    toast.error("태그 생성에 실패했습니다.");
+  }
+  };
+
   // 💡 여기에 예외 처리 3중 방어막이 적용되었습니다!
   const handleFinalSave = async () => {
     const nowISO = new Date().toISOString();
@@ -220,7 +256,8 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
         imageModel, imageSize, imageQuality, outputFormat,
         coverImageUrl: savedCoverImageUrl,
         userId: currentUser?.userId,
-        updatedAt: nowISO
+        updatedAt: nowISO,
+        tags: tags.join(",")
       };
 
       if (isEditing) {
@@ -278,6 +315,8 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
       outputFormat={outputFormat} setOutputFormat={setOutputFormat}
       bookGenre={bookGenre} setBookGenre={setBookGenre}
       coverStyle={coverStyle} setCoverStyle={setCoverStyle}
+      tags={tags} setTags={setTags}
+      onGenerateTags={handleGenerateTags}
       isEditing={isEditing}
       onSave={handleInitiatePreview}
       onFinalSave={handleFinalSave}

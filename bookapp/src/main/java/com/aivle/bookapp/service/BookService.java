@@ -81,4 +81,9 @@ public class BookService{
                 .filter(b->b.getUserId() != null && b.getUserId().equals(userId))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<Book> findByTag(String tag) {
+        return bookRepository.findByTagsContaining(tag);
+    }
 }
