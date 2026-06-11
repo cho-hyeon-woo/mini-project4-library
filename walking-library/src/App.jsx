@@ -128,7 +128,7 @@ export default function App() {
 
   return (
     <>
-      {/* 🌾 1. 전체 화면 감성 그라데이션 배경 고정 레이어 (맨 위는 깔끔한 흰색) */}
+      {/* 🌾 전체 화면 배경 고정 레이어 */}
       <div style={{ 
         position: "fixed",
         top: 0,
@@ -140,7 +140,7 @@ export default function App() {
         pointerEvents: "none"
       }}>
         
-        {/* 🌾 2. 흔들리는 진짜 밀밭 전경 배경 */}
+        {/* 흔들리는 밀밭 전경 배경 */}
         <div 
           className="animate-wheat-sway"
           style={{
@@ -156,11 +156,50 @@ export default function App() {
           }}
         />
 
-        {/* 몽환적인 흐림 필터 */}
+        {/* 📜 [좌측 여백] 아저씨 대신 들어간 감성 레터링 텍스트 1 */}
+        <div 
+          className="animate-wheat-sway"
+          style={{
+            position: "absolute",
+            top: "15%",
+            left: "4%",
+            writingMode: "vertical-rl", // 세로 정렬 마법
+            fontSize: "36px",
+            fontWeight: "800",
+            fontFamily: "serif",
+            color: "#7c2d12",
+            opacity: 0.05, // 배경처럼 은은하게 녹아들도록 설정
+            letterSpacing: "0.2em",
+            transformOrigin: "center left"
+          }}
+        >
+          책과 산책하는 시간
+        </div>
+
+        {/* 📜 [우측 여백] 아저씨 대신 들어간 감성 레터링 텍스트 2 */}
+        <div 
+          className="animate-wheat-sway"
+          style={{
+            position: "absolute",
+            bottom: "15%",
+            right: "4%",
+            writingMode: "vertical-rl",
+            fontSize: "24px",
+            fontWeight: "600",
+            fontFamily: "serif",
+            color: "#7c2d12",
+            opacity: 0.05,
+            letterSpacing: "0.3em",
+            transformOrigin: "center right"
+          }}
+        >
+          바람이 부는 날엔 서재를 걷는다
+        </div>
+
         <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
       </div>
 
-      {/* 📥 3. 실제 콘텐츠 스크롤 구역 */}
+      {/* 📥 실제 콘텐츠 스크롤 구역 */}
       <div style={{ 
         position: "relative", 
         zIndex: 10, 
@@ -170,7 +209,7 @@ export default function App() {
         padding: "40px 20px"
       }}>
         
-        {/* 📥 4. 독창적 감성이 주입된 반투명 아날로그 쉘 */}
+        {/* 📥 반투명 아날로그 쉘 */}
         <div 
           className="app-shell" 
           style={{ 
@@ -240,7 +279,7 @@ export default function App() {
           {currentMenu === "home" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "35px", width: "100%" }}>
 
-              {/* ✨ 이 달의 추천 도서 (감성 큰따옴표 레이아웃 및 액자 효과 부여) */}
+              {/* 이 달의 추천 도서 */}
               {randomBook && !searchQuery && (
                 <section className="recommend-section section-card" style={{ borderLeft: "5px solid #d97706", background: "rgba(255,255,255,0.4)" }}>
                   <h3 className="section-title" style={{ color: "#444", letterSpacing: "-0.03em" }}>이 달의 추천 도서</h3>
@@ -255,12 +294,9 @@ export default function App() {
                       <p style={{ margin: "0 0 15px 0", color: "#78716c", fontSize: "14px" }}>
                         <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span> 에세이
                       </p>
-                      
-                      {/* 시의 한 구절 같은 인용구 디자인 적용 */}
-                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", borderLeft: "2px style #e7e5e4", color: "#444", fontSize: "14px", lineHeight: "1.6", fontStyle: "serif" }}>
+                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6" }}>
                         “ {randomBook.content} ”
                       </div>
-                      
                       <span className="detail-link" style={{ cursor: "pointer", color: "#b45309", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #b45309" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
                         자세히 들여다보기 →
                       </span>
@@ -284,15 +320,14 @@ export default function App() {
                 </section>
               )}
 
-              {/* 📚 도서 목록 (독창적 3D 회전 카드 및 감성 파스텔톤 입체화) */}
+              {/* 도서 목록 */}
               <section className="book-list-section section-card">
                 <h3 className="section-title" style={{ color: "#292524", display: "flex", alignItems: "center", gap: "6px" }}>
                   <BookOpen size={20} aria-hidden="true" style={{ color: "#d97706" }} />
                   서재에 안착된 책 ({filteredBooks.length}권)
                 </h3>
-                <div className="book-grid" style={{ perspective: "1000px" }}> {/* 3D 효과를 위한 원근법 축 추가 */}
+                <div className="book-grid" style={{ perspective: "1000px" }}>
                   {filteredBooks.map((book, index) => {
-                    // 빈 표지에 입힐 파스텔 감성 북커버 컬러 스펙트럼
                     const pastelColors = ["#f5f5f4", "#f4f1ea", "#edf2f4", "#f6eff2", "#eff4f0"];
                     const selectColor = pastelColors[index % pastelColors.length];
 
@@ -311,7 +346,6 @@ export default function App() {
                           boxSizing: "border-box",
                           boxShadow: "0 4px 12px rgba(120, 110, 90, 0.01)"
                         }}
-                        // ⭐ 마우스 올리면 책이 비대칭 각도로 열리며 튀어나오는 아날로그 모션
                         whileHover={{ 
                           y: -10, 
                           rotateY: 4, 
@@ -325,7 +359,7 @@ export default function App() {
                         <div className="book-cover-wrap" style={{ 
                           borderRadius: "8px", 
                           overflow: "hidden",
-                          boxShadow: "3px 5px 15px rgba(50, 45, 40, 0.12)", // 현실적인 도서 그림자 두께감
+                          boxShadow: "3px 5px 15px rgba(50, 45, 40, 0.12)", 
                           height: "175px",
                           background: selectColor,
                           display: "flex",
@@ -336,7 +370,7 @@ export default function App() {
                           {book.coverImageUrl ? (
                             <img src={book.coverImageUrl} alt={book.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           ) : (
-                            <span style={{ fontSize: "13px", mountaineering: "serif", fontWeight: "600", color: "#78716c", padding: "0 12px", lineHeight: "1.4" }}>
+                            <span style={{ fontSize: "13px", fontWeight: "600", color: "#78716c", padding: "0 12px", lineHeight: "1.4" }}>
                               {book.title}
                             </span>
                           )}
