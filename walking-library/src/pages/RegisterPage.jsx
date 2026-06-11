@@ -23,7 +23,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [imageModel, setImageModel] = useState("gpt-image-2");
+  const [imageModel, setImageModel] = useState("gpt-image-1");
   const [imageSize, setImageSize] = useState("1024x1536");
   const [imageQuality, setImageQuality] = useState("low");
   const [outputFormat, setOutputFormat] = useState("png");
@@ -136,7 +136,7 @@ export default function RegisterPage({ dbAddress, currentUser, selectedBook, isE
       title, author, content, genre: bookGenre, style: coverStyle,
       imageModel, imageSize, imageQuality, outputFormat,
       coverImageUrl: tempPreviewImage,
-      user_id: currentUser?.id,
+      userId: currentUser?.userId,
       updatedAt: nowISO
     };
 

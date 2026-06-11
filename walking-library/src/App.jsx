@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { BookOpen, UserRound } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import Header from "./components/Header";
@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import BookDetail from "./components/BookDetail";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import MyPage from "./pages/MyPage";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
@@ -102,6 +103,7 @@ export default function App() {
       setCurrentUser(null);
       setShowAccountEdit(false);
       setCurrentMenu("home");
+      handleCloseDetail();
       toast.success("회원 탈퇴가 완료되었습니다.");
     } catch (err) {
       toast.error(err.message || "회원 탈퇴에 실패했습니다.");
@@ -138,7 +140,7 @@ export default function App() {
               return;
             }
             setCurrentMenu(menu);
-            if (menu !== "mypage") handleCloseDetail();
+            handleCloseDetail();
           }}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -146,6 +148,8 @@ export default function App() {
           onLogout={() => {
             setCurrentUser(null);
             setCurrentMenu("home");
+            setShowAccountEdit(false);
+            handleCloseDetail();
             toast.info("로그아웃 되었습니다.");
           }}
         />
@@ -183,11 +187,15 @@ export default function App() {
               <section className="recommend-section section-card">
                 <h3 className="section-title">이 달의 추천 도서</h3>
                 <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-                  <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, overflow: "hidden", border: "1px solid #bbb" }}>
-                    {randomBook.coverImageUrl
-                      ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : <div style={{ textAlign: "center", padding: "5px", fontSize: "11px", color: "#666" }}>생성된 이미지가 없습니다!</div>}
-                  </div>
+                  {randomBook.coverImageUrl ? (
+                    <div style={{ maxWidth: "180px", maxHeight: "180px", flexShrink: 0, borderRadius: "4px", overflow: "hidden", border: "1px solid #bbb" }}>
+                      <img src={randomBook.coverImageUrl} alt="표지" style={{ display: "block", maxWidth: "180px", maxHeight: "180px", width: "auto", height: "auto" }} />
+                    </div>
+                  ) : (
+                    <div style={{ width: "120px", height: "180px", background: "#ccc", borderRadius: "4px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #bbb" }}>
+                      <div style={{ textAlign: "center", padding: "5px", fontSize: "11px", color: "#666" }}>생성된 이미지가 없습니다!</div>
+                    </div>
+                  )}
                   <div style={{ flex: 1, textAlign: "center" }}>
                     <h4 style={{ margin: "0 0 10px 0", fontSize: "20px", color: "#333" }}>{randomBook.title}</h4>
                     <p style={{ margin: "0 0 10px 0", color: "#555", fontWeight: "bold" }}>
@@ -289,86 +297,23 @@ export default function App() {
 
         {/* 마이 페이지 */}
         {currentMenu === "mypage" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px", width: "100%" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h3 style={{ margin: "0 0 5px 0", color: "#1e293b", fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                <UserRound size={21} aria-hidden="true" />
-                {currentUser?.name}님의 서재
-              </h3>
-              <button
-                type="button"
-                className="btn-outline"
-                style={{ width: "auto", flexShrink: 0, padding: "8px 14px", fontSize: "13px", marginBottom: 0 }}
-                onClick={() => {
-                  setAccountName(currentUser?.name || "");
-                  setAccountPassword(currentUser?.password || "");
-                  setShowAccountEdit((prev) => !prev);
-                }}
-              >
-                계정 관리
-              </button>
-            </div>
-
-            {showAccountEdit && (
-              <div className="auth-wrapper" style={{ minHeight: "auto" }}>
-                <div className="auth-card">
-                  <div className="auth-logo">
-                    <div className="auth-logo-icon">
-                      <UserRound size={26} color="#ffa042" />
-                    </div>
-                    <h2>계정 관리</h2>
-                    <p>회원 정보를 수정하거나 탈퇴할 수 있어요</p>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">이름</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={accountName}
-                      onChange={(e) => setAccountName(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">비밀번호</label>
-                    <input
-                      type="password"
-                      className="form-input"
-                      value={accountPassword}
-                      onChange={(e) => setAccountPassword(e.target.value)}
-                    />
-                  </div>
-
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <button type="button" className="btn-primary" style={{ flex: 1, marginBottom: 0 }} onClick={handleUpdateAccount}>
-                      수정하기
-                    </button>
-                    <button type="button" className="btn-outline" style={{ flex: 1, marginBottom: 0 }} onClick={handleDeleteAccount}>
-                      계정 탈퇴
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!showAccountEdit && (
-              <>
-                <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
-
-                <BookDetail
-                  selectedBook={selectedBook}
-                  onStartEdit={startEdit}
-                  onDelete={handleDelete}
-                  onClose={handleCloseDetail}
-                  isReadOnly={false}
-                  books={books.filter(b => b.userId === currentUser?.userId)}
-                  onSelectBook={(book) => setSelectedBook(book)}
-                  isMyPage={true}
-                  currentUser={currentUser}
-                />
-              </>
-            )}
-          </div>
+          <MyPage
+            currentUser={currentUser}
+            books={books}
+            selectedBook={selectedBook}
+            onSelectBook={(book) => setSelectedBook(book)}
+            onStartEdit={startEdit}
+            onDelete={handleDelete}
+            onClose={handleCloseDetail}
+            showAccountEdit={showAccountEdit}
+            setShowAccountEdit={setShowAccountEdit}
+            accountName={accountName}
+            setAccountName={setAccountName}
+            accountPassword={accountPassword}
+            setAccountPassword={setAccountPassword}
+            onUpdateAccount={handleUpdateAccount}
+            onDeleteAccount={handleDeleteAccount}
+          />
         )}
       </div>
       <ToastContainer

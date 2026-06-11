@@ -1,19 +1,22 @@
 package com.aivle.bookapp;
 
 import com.aivle.bookapp.domain.Book;
+import com.aivle.bookapp.domain.User;
 import com.aivle.bookapp.repository.BookRepository;
+import com.aivle.bookapp.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EnableJpaAuditing
 public class BookappApplication {
 
 	@Bean
-	CommandLineRunner init(BookRepository bookRepository) {
+	CommandLineRunner init(BookRepository bookRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 			// save, findById 예제 코드
 			/*Book book = new Book();
@@ -31,34 +34,51 @@ public class BookappApplication {
 			System.out.println("book2의 title: " + book2.getTitle());
 			System.out.println("book2의 author: " + book2.getAuthor());*/
 
+			User testUser = new User();
+			testUser.setLoginId("test");
+			testUser.setPassword(passwordEncoder.encode("1234"));
+			testUser.setName("테스트유저");
+			userRepository.save(testUser);
+
+			User qwerUser = new User();
+			qwerUser.setLoginId("qwer");
+			qwerUser.setPassword(passwordEncoder.encode("1234"));
+			qwerUser.setName("니가 좋아~");
+			userRepository.save(qwerUser);
+
 			Book b1 = new Book();
 			b1.setTitle("자바의 정석");
 			b1.setAuthor("남궁성");
 			b1.setContent("자바 기본 문법을 다루는 책입니다.");
+			b1.setUserId(testUser.getUserId());
 			bookRepository.save(b1);
 
 			Book b2 = new Book();
 			b2.setTitle("Spring 입문");
 			b2.setAuthor("임한울");
 			b2.setContent("자바 기본 문법을 다루는 책입니다.");
+			b2.setUserId(testUser.getUserId());
 			bookRepository.save(b2);
 
 			Book b3 = new Book();
 			b3.setTitle("React 시작");
 			b3.setAuthor("홍길동");
 			b3.setContent("자바 기본 문법을 다루는 책입니다.");
+			b3.setUserId(testUser.getUserId());
 			bookRepository.save(b3);
 
 			Book b4 = new Book();
 			b4.setTitle("자바의 기초");
 			b4.setAuthor("임한울");
 			b4.setContent("자바 기본 문법을 다루는 책입니다.");
+			b4.setUserId(qwerUser.getUserId());
 			bookRepository.save(b4);
 
 			Book b5 = new Book();
 			b5.setTitle("Node.js 실전");
 			b5.setAuthor("김에이블");
 			b5.setContent("자바 기본 문법을 다루는 책입니다.");
+			b5.setUserId(qwerUser.getUserId());
 			bookRepository.save(b5);
 		};
 	}

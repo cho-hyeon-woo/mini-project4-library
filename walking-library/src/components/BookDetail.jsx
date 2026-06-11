@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { BookOpen, FilePenLine, MousePointer2, Pencil, Trash2, X } from "lucide-react";
+import ImageLightbox from "./ImageLightbox";
 
 export default function BookDetail({
   selectedBook,
@@ -9,9 +11,11 @@ export default function BookDetail({
   onSelectBook = null,
   isMyPage = false
 }) {
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   if (isMyPage) {
     return (
+      <>
       <div className="mypage-layout">
 
         {/* 좌측: 도서 목록 */}
@@ -29,17 +33,27 @@ export default function BookDetail({
                   className="mypage-book-item"
                   onClick={() => onSelectBook && onSelectBook(book)}
                   style={{
-                    padding: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "10px",
                     borderRadius: "8px",
                     cursor: "pointer",
                     background: isSelected ? "#eff6ff" : "#f8fafc",
                     border: isSelected ? "1px solid #3b82f6" : "1px solid #e2e8f0",
                   }}
                 >
-                  <strong style={{ display: "block", fontSize: "13px", color: isSelected ? "#1d4ed8" : "#334155", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                    {book.title}
-                  </strong>
-                  <span style={{ fontSize: "11px", color: "#94a3b8" }}>{book.author}</span>
+                  <div className="mypage-book-thumb">
+                    {book.coverImageUrl
+                      ? <img src={book.coverImageUrl} alt={book.title} />
+                      : <BookOpen size={18} aria-hidden="true" color="#cbd5e1" />}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ display: "block", fontSize: "13px", color: isSelected ? "#1d4ed8" : "#334155", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                      {book.title}
+                    </strong>
+                    <span style={{ fontSize: "11px", color: "#94a3b8" }}>{book.author}</span>
+                  </div>
                 </div>
               );
             })}
@@ -52,21 +66,24 @@ export default function BookDetail({
         {/* 우측: 상세 정보 */}
         <div className="mypage-content">
           {selectedBook ? (
-            <div style={{ display: "flex", gap: "30px", alignItems: "flex-start" }}>
-              <div style={{ flex: "0 0 200px" }}>
-                <div style={{ width: "100%", height: "290px", background: "#f8fafc", borderRadius: "8px", overflow: "hidden", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
-                  {selectedBook.coverImageUrl ? (
-                    <img src={selectedBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                      <BookOpen size={24} aria-hidden="true" />
-                      표지 없음
-                    </div>
-                  )}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              {selectedBook.coverImageUrl ? (
+                <div
+                  style={{ maxWidth: "100%", maxHeight: "320px", display: "flex", justifyContent: "center", borderRadius: "8px", overflow: "hidden", cursor: "zoom-in" }}
+                  onClick={() => setLightboxImage(selectedBook.coverImageUrl)}
+                >
+                  <img src={selectedBook.coverImageUrl} alt="표지" style={{ display: "block", maxWidth: "100%", maxHeight: "320px", width: "auto", height: "auto" }} />
                 </div>
-              </div>
+              ) : (
+                <div style={{ width: "200px", height: "290px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
+                  <div style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+                    <BookOpen size={24} aria-hidden="true" />
+                    표지 없음
+                  </div>
+                </div>
+              )}
 
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "15px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "15px", textAlign: "center" }}>
                 <div>
                   <span className="genre-badge genre-badge--sm">{selectedBook.genre || "일반"}</span>
                   <h3 style={{ margin: "0 0 5px 0", fontSize: "26px", color: "#1e293b" }}>{selectedBook.title}</h3>
@@ -77,7 +94,7 @@ export default function BookDetail({
                   <strong>작성일:</strong> {selectedBook.createdAt ? new Date(selectedBook.createdAt).toLocaleDateString() : "미지정"}
                 </div>
 
-                <div>
+                <div style={{ textAlign: "left" }}>
                   <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#334155" }}>줄거리 정보</h4>
                   <div className="content-box">{selectedBook.content}</div>
                 </div>
@@ -110,6 +127,8 @@ export default function BookDetail({
           )}
         </div>
       </div>
+      <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
+      </>
     );
   }
 
@@ -123,18 +142,21 @@ export default function BookDetail({
         <X size={18} aria-hidden="true" />
       </button>
       <div style={{ display: "flex", gap: "50px", alignItems: "flex-start" }}>
-        <div style={{ flex: "0 0 350px" }}>
-          <div style={{ width: "100%", height: "520px", background: "#f8fafc", borderRadius: "10px", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {hasNoImage ? (
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <BookOpen size={52} style={{ marginBottom: "10px" }} aria-hidden="true" />
-                <p style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>등록된 표지가 없습니다</p>
-              </div>
-            ) : (
-              <img src={selectedBook.coverImageUrl} alt="도서 표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            )}
+        {hasNoImage ? (
+          <div style={{ flex: "0 0 350px", width: "350px", height: "520px", background: "#f8fafc", borderRadius: "10px", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <BookOpen size={52} style={{ marginBottom: "10px" }} aria-hidden="true" />
+              <p style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>등록된 표지가 없습니다</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            style={{ flexShrink: 0, maxWidth: "350px", maxHeight: "520px", background: "#f8fafc", borderRadius: "10px", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", border: "1px solid #f1f5f9", cursor: "zoom-in" }}
+            onClick={() => setLightboxImage(selectedBook.coverImageUrl)}
+          >
+            <img src={selectedBook.coverImageUrl} alt="도서 표지" style={{ display: "block", maxWidth: "350px", maxHeight: "520px", width: "auto", height: "auto" }} />
+          </div>
+        )}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
           <div>
             <span className="genre-badge">{selectedBook.genre || "일반도서"}</span>
@@ -154,6 +176,7 @@ export default function BookDetail({
           </div>
         </div>
       </div>
+      <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
     </section>
   );
 }

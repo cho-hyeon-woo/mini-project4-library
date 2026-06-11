@@ -40,6 +40,11 @@ public class Book {
     @Lob
     private String coverImageUrl;
 
+    private String genre;
+
+    @Lob
+    private String style;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
