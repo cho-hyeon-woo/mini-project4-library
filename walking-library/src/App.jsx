@@ -188,23 +188,23 @@ export default function App() {
         background: "linear-gradient(to bottom, #ffffff 50%, #ffedd5 70%)", 
         pointerEvents: "none"
       }}>
-        
         <div 
           style={{
             position: "absolute",
-            height:'1500px',
             inset: 0,
             backgroundImage: `url('/cover1.gif')`,
             backgroundSize: "cover",
             backgroundPosition: "bottom center",
-            opacity: 0.90, 
-            mixBlendMode: "multiply",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 100%)"
+            opacity: 0.30
           }}
         />
-
-        <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.58) 52%, rgba(255,237,213,0.70) 100%)"
+          }}
+        />
       </div>
 
       <div style={{ 
@@ -224,12 +224,10 @@ export default function App() {
             maxWidth: "1100px", 
             margin: "0 auto", 
             fontFamily: "sans-serif", 
-            background: "rgba(255, 255, 255, 0.75)", 
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
+            background: "rgba(255, 255, 255, 0.88)", 
             borderRadius: "24px", 
-            boxShadow: "0 25px 50px rgba(130, 115, 90, 0.05)",
-            border: "1px solid rgba(255, 255, 255, 0.6)",
+            boxShadow: "0 18px 42px rgba(130, 115, 90, 0.08)",
+            border: "1px solid rgba(255, 255, 255, 0.82)",
             boxSizing: "border-box" 
           }}
         >
@@ -338,7 +336,7 @@ export default function App() {
                     const selectColor = pastelColors[index % pastelColors.length];
 
                     return (
-                      <motion.div
+                      <div
                         key={book.id}
                         className="book-card"
                         onClick={() => handleOpenDetail(book, "list")}
@@ -352,15 +350,6 @@ export default function App() {
                           boxSizing: "border-box",
                           boxShadow: "0 4px 12px rgba(120, 110, 90, 0.01)"
                         }}
-                        whileHover={{ 
-                          y: -10, 
-                          rotateY: 4, 
-                          scale: 1.03, 
-                          boxShadow: "0 20px 35px rgba(160, 110, 50, 0.12)",
-                          background: "rgba(255, 255, 255, 0.98)" 
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 24 }}
                       >
                         <div className="book-cover-wrap" style={{ 
                           borderRadius: "8px", 
@@ -383,7 +372,7 @@ export default function App() {
                         </div>
                         <strong className="book-card-title" style={{ display: "block", color: "#1c1917", fontSize: "15px", fontWeight: "700", marginBottom: "5px", letterSpacing: "-0.01em" }}>{book.title}</strong>
                         <span className="book-card-author" style={{ fontSize: "12px", color: "#a8a29e", fontWeight: "500" }}>{book.author}</span>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </div>
