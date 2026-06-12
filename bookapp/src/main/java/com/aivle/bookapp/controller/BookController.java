@@ -96,6 +96,12 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search/tag/{tag}")
+    public ResponseEntity<List<Book>> searchByTag(@PathVariable String tag) {
+        return ResponseEntity.ok(bookService.findByTag(tag));
+    }
+
+
     /*@GetMapping("/books/count")
     public long getCount() {
         return bookService.count();

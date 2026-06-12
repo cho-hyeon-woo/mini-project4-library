@@ -69,7 +69,8 @@ export default function App() {
 
   const filteredBooks = books.filter(book =>
     book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-    book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+    book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+    (book.tags && book.tags.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
   );
 
   const fetchBooks = async () => {
@@ -258,9 +259,12 @@ export default function App() {
             currentUser={currentUser}
             onLogout={() => {
               setCurrentUser(null);
-              localStorage.removeItem("walking_library_user"); // 로그아웃 시 세션 제거
+              localStorage.removeItem("walking_library_user");
+              clearSessionUser();
               setCurrentMenu("home");
               setShowAccountEdit(false);
+              setIsEditing(false);
+              setRegisterPageSessionKey((key) => key + 1);
               handleCloseDetail();
               toast.info("로그아웃 되었습니다.");
             }}
@@ -271,7 +275,8 @@ export default function App() {
             <LoginPage
               onLogin={(user) => {
                 setCurrentUser(user);
-                localStorage.setItem("walking_library_user", JSON.stringify(user)); // 로그인 성공 시 세션 저장
+                saveSessionUser(user);
+                localStorage.setItem("walking_library_user", JSON.stringify(user));
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 환영합니다!`);
               }}
@@ -284,6 +289,7 @@ export default function App() {
             <SignupPage
               onSignupSuccess={(user) => {
                 setCurrentUser(user);
+                saveSessionUser(user);
                 localStorage.setItem("walking_library_user", JSON.stringify(user)); // 회원가입 성공 후 자동 로그인 세션 저장
                 setCurrentMenu("home");
                 toast.success(`${user.name}님, 회원가입을 축하합니다!`);
@@ -411,8 +417,9 @@ export default function App() {
           )}
 
           {/* 도서 등록/수정 페이지 */}
-          {currentMenu === "register" && (
+          <div style={{ display: currentMenu === "register" ? "block" : "none" }}>
             <RegisterPage
+              key={registerPageSessionKey}
               dbAddress={dbAddress}
               currentUser={currentUser}
               selectedBook={selectedBook}
@@ -422,15 +429,17 @@ export default function App() {
                 setSelectedBook(null);
                 handleCloseDetail();
                 fetchBooks();
+                setRegisterPageSessionKey((key) => key + 1);
                 setCurrentMenu("home");
               }}
               onCancel={() => {
                 setIsEditing(false);
                 setSelectedBook(null);
+                setRegisterPageSessionKey((key) => key + 1);
                 setCurrentMenu("home");
               }}
             />
-          )}
+          </div>
 
           {/* 마이 페이지 */}
           {currentMenu === "mypage" && (
