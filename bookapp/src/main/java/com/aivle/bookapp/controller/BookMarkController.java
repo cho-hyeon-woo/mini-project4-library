@@ -35,4 +35,10 @@ public class BookMarkController {
         List<Book> bookmarkedBooks = bookMarkService.getBookmarkedBooks(userId);
         return ResponseEntity.ok(bookmarkedBooks);
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Book>> getMyBookmarkedBooks(@RequestParam Long userId) {
+        List<Book> books = bookMarkService.getMyBookmarkedBooks(userId);
+        return ResponseEntity.ok(books);
+    }
 }
