@@ -33,35 +33,6 @@ export default function Header({ isBgOn, onToggleBg, currentMenu, onMenuChange, 
   return (
     <header className="header-root" style={{ position: "relative" }}>
       
-      {/* 🛠️ [성능 최적화 스위치 추가] 로고 박스 우측 상단에 미니멀한 버튼 안착 */}
-      <div style={{
-        position: "absolute",
-        top: "15px",
-        right: "20px",
-        zIndex: 50,
-      }}>
-        <button
-          type="button"
-          onClick={onToggleBg}
-          style={{
-            background: isBgOn ? "rgba(217, 119, 6, 0.06)" : "rgba(120, 115, 105, 0.15)",
-            border: `1px solid ${isBgOn ? "rgba(217, 119, 6, 0.2)" : "rgba(120, 115, 105, 0.3)"}`,
-            borderRadius: "30px",
-            padding: "6px 14px",
-            fontSize: "11px",
-            fontWeight: "600",
-            color: isBgOn ? "#947c6a" : "#57534e",
-            cursor: "pointer",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-            transition: "all 0.2s ease",
-            outline: "none"
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.04)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
-        >
-          {isBgOn ? "🌾 배경 끄기" : "🪵 배경 켜기"}
-        </button>
-      </div>
 
       {/* 🌾 [인터랙티브 리모델링] 마우스 위치에 반응하는 글로우 헤더 */}
       <div 
