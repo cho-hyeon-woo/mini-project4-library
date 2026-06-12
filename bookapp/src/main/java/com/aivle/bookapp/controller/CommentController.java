@@ -42,4 +42,20 @@ public class CommentController {
             return ResponseEntity.status(404).body("존재하지 않는 댓글이거나 이미 삭제되었습니다.");
         }
     }
+
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<String> updateComment(
+            @PathVariable Long commentId, 
+            @RequestBody java.util.Map<String, String> requestData) {
+        
+        String content = requestData.get("content");
+        
+        boolean isUpdated = commentService.updateComment(commentId, content);
+        
+        if (isUpdated) {
+            return ResponseEntity.ok("댓글이 성공적으로 수정되었습니다.");
+        } else {
+            return ResponseEntity.status(404).body("존재하지 않는 댓글입니다.");
+        }
+    }
 }

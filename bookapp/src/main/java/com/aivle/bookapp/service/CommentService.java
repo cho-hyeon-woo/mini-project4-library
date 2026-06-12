@@ -51,4 +51,17 @@ public class CommentService {
             return false;
         }
     }
+
+    @Transactional
+    public boolean updateComment(Long commentId, String content) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            comment.setContent(content);
+            commentRepository.save(comment);
+            return true;
+        }
+        return false;
+    }
 }
