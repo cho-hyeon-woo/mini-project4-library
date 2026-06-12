@@ -42,4 +42,8 @@ public class BookMarkService{
     public List<Book> getBookmarkedBooks(Long userId) {
         return bookMarkRepository.getBookmarkedBooks(userId);
     }
+
+    public List<Book> getMyBookmarkedBooks(Long userId) {
+        return bookMarkRepository.getBookmarkedBooks(userId);
+    }
 }

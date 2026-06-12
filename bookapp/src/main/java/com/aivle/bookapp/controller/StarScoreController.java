@@ -29,4 +29,15 @@ public class StarScoreController {
         int intAverage = average.intValue();
         return ResponseEntity.ok(intAverage);
     }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<Long> getRecommendedBookId() {
+        Long bestBookId = starScoreService.getBestRecommendedBookId();
+        
+        if (bestBookId != null) {
+            return ResponseEntity.ok(bestBookId); // 1등 책 번호 전달
+        } else {
+            return ResponseEntity.noContent().build(); // 별점 데이터가 아예 없을 때는 빈 응답
+        }
+    }
 }

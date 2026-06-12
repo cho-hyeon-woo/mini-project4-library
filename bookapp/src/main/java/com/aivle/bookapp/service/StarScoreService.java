@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +36,15 @@ public class StarScoreService {
     public Double getAverageScore(Long bookId) {
         Double avg = starScoreRepository.getAverageScoreByBookId(bookId);
         return (avg != null) ? avg : 0.0;
+    }
+
+    @Transactional(readOnly = true)
+    public Long getBestRecommendedBookId() {
+        List<Object[]> ranking = starScoreRepository.findBookRanking();
+        
+        if (ranking != null && !ranking.isEmpty()) {
+            return (Long) ranking.get(0)[0]; 
+        }
+        return null;
     }
 }

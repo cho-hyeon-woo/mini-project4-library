@@ -45,7 +45,7 @@ export default function BookForm({
     setSearchError("");
     setSearchResults([]);
     try {
-      const url = `/aladin-api/ttb/api/ItemSearch.aspx?ttbkey=${ALADIN_TTB_KEY}&Query=${encodeURIComponent(searchTitle.trim())}&QueryType=Title&MaxResults=10&start=1&SearchTarget=Book&output=js&Version=20131101`;
+      const url = `/aladin/ttb/api/ItemSearch.aspx?ttbkey=${ALADIN_TTB_KEY}&Query=${encodeURIComponent(searchTitle.trim())}&QueryType=Title&MaxResults=10&start=1&SearchTarget=Book&output=js&Version=20131101`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.item && data.item.length > 0) {

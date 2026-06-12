@@ -75,21 +75,37 @@ export default function App() {
     try {
       const res = await fetch(dbAddress);
       if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || "도서 목록을 불러오지 못했습니다.");
-    }
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "도서 목록을 불러오지 못했습니다.");
+      }
       const data = await res.json();
       setBooks(data);
-      if (data.length > 0 && !randomBook) {
-        setRandomBook(data[Math.floor(Math.random() * data.length)]);
+
+      if (data.length > 0) {
+        const oldestBook = [...data].sort((a, b) => a.id - b.id)[0];
+
+        try {
+          const recRes = await fetch("http://localhost:8080/stars/recommend");
+          
+          if (recRes.status === 200) {
+            const bestBookId = await recRes.json();
+            const bestBook = data.find(b => b.id === bestBookId);
+            setRandomBook(bestBook || oldestBook);
+          } else {
+            setRandomBook(oldestBook);
+          }
+        } catch (e) {
+          console.error("추천 도서 랭킹을 가져오지 못했습니다. 기본값으로 대체합니다.", e);
+          setRandomBook(oldestBook);
+        }
+      } else {
+        setRandomBook(null);
       }
     } catch (err) {
       console.error("데이터 로딩 실패:", err);
-
       if (err.message === "Failed to fetch" || err.name === "TypeError") {
         toast.error("서버와 연결할 수 없습니다.");
-      }
-      else {
+      } else {
         toast.error(err.message);
       }
     }
@@ -304,7 +320,7 @@ export default function App() {
                       <p style={{ margin: "0 0 15px 0", color: "#78716c", fontSize: "14px" }}>
                         <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span>
                       </p>
-                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6" }}>
+                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
                         “ {randomBook.content} ”
                       </div>
                       <span className="detail-link" style={{ cursor: "pointer", color: "#b45309", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #b45309" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>

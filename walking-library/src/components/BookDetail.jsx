@@ -21,6 +21,8 @@ export default function BookDetail({
   const [hoverRating, setHoverRating] = useState(0);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editCommentContent, setEditCommentContent] = useState("");
 
   useEffect(() => {
     if (selectedBook && !isMyPage) {
@@ -119,6 +121,52 @@ export default function BookDetail({
       }
     } catch (err) {
       toast.error("댓글 등록에 실패했습니다.");
+    }
+  };
+
+  const handleCommentEditStart = (comment) => {
+    setEditingCommentId(comment.commentId);
+    setEditCommentContent(comment.content);
+  };
+
+  const handleCommentEditCancel = () => {
+    setEditingCommentId(null);
+    setEditCommentContent("");
+  };
+
+  const handleCommentEditSave = async (commentId) => {
+    if (!editCommentContent.trim()) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/comments/${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editCommentContent }),
+      });
+      if (res.ok) {
+        setEditingCommentId(null);
+        setEditCommentContent("");
+        fetchComments();
+        toast.success("댓글이 수정되었습니다.");
+      } else {
+        toast.error("댓글 수정에 실패했습니다.");
+      }
+    } catch (err) {
+      toast.error("댓글 수정에 실패했습니다.");
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/comments/${commentId}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchComments();
+        toast.success("댓글이 삭제되었습니다.");
+      } else {
+        toast.error("댓글 삭제에 실패했습니다.");
+      }
+    } catch (err) {
+      toast.error("댓글 삭제에 실패했습니다.");
     }
   };
 
@@ -354,20 +402,51 @@ export default function BookDetail({
       <div style={{ borderTop: "2px solid #1e293b", paddingTop: "20px" }}>
         <h3 style={{ fontSize: "22px", margin: "0 0 20px 0", color: "#0f172a" }}>댓글 ({comments.length})</h3>
         
-        {/* 설계도 반영: 댓글 3개 높이 제한 및 스크롤 바 처리 */}
-        <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "10px", marginBottom: "20px", border: "1px solid #f1f5f9", borderRadius: "8px", padding: "15px" }}>
+        <div style={{ marginBottom: "20px", border: "1px solid #f1f5f9", borderRadius: "8px", padding: "15px" }}>
           {comments.length === 0 ? (
             <p style={{ color: "#94a3b8", textAlign: "center", padding: "20px 0", fontSize: "14px" }}>첫 번째 댓글을 남겨보세요!</p>
           ) : (
             comments.map((comment) => (
               <div key={comment.commentId} style={{ borderBottom: "1px solid #e2e8f0", padding: "15px 0", display: "flex", flexDirection: "column", gap: "6px" }}>
-                <strong style={{ fontSize: "15px", color: "#1e293b" }}>
-                  {formatUserInfo(comment.userName, comment.loginId)}
-                </strong>
-                <p style={{ margin: "5px 0", fontSize: "15px", color: "#334155", lineHeight: "1.5", textAlign: "left" }}>{comment.content}</p>
-                <span style={{ fontSize: "12px", color: "#94a3b8", alignSelf: "flex-end" }}>
-                  {formatCommentDate(comment.createdAt)}
-                </span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
+                  <div>
+                    <strong style={{ fontSize: "15px", color: "#1e293b" }}>
+                      {formatUserInfo(comment.userName, comment.loginId)}
+                    </strong>
+                    <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                      {formatCommentDate(comment.createdAt)}
+                    </div>
+                  </div>
+                  {currentUser?.userId === comment.userId && (
+                    <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                      {editingCommentId === comment.commentId ? (
+                        <>
+                          <button onClick={() => handleCommentEditSave(comment.commentId)} style={{ background: "none", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "4px 8px", fontSize: "12px", cursor: "pointer", color: "#0f172a" }}>저장</button>
+                          <button onClick={handleCommentEditCancel} style={{ background: "none", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "4px 8px", fontSize: "12px", cursor: "pointer", color: "#64748b" }}>취소</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => handleCommentEditStart(comment)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: "4px" }} title="수정">
+                            <Pencil size={14} />
+                          </button>
+                          <button onClick={() => handleCommentDelete(comment.commentId)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: "4px" }} title="삭제">
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {editingCommentId === comment.commentId ? (
+                  <input
+                    type="text"
+                    value={editCommentContent}
+                    onChange={(e) => setEditCommentContent(e.target.value)}
+                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "15px" }}
+                  />
+                ) : (
+                  <p style={{ margin: "5px 0", fontSize: "15px", color: "#334155", lineHeight: "1.5", textAlign: "left", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{comment.content}</p>
+                )}
               </div>
             ))
           )}
