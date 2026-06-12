@@ -10,9 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@EnableJpaAuditing
+
 @Entity
 @Getter
 @Setter
