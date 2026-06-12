@@ -28,14 +28,19 @@ export default function LoginPage({ onLogin, onGoRegister }) {
       });
 
       if (!res.ok) {
-        setError("아이디 또는 비밀번호가 올바르지 않습니다.");
-        return;
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "로그인에 실패했습니다.");
       }
 
       const user = await res.json();
       onLogin(user);
     } catch (err) {
-      setError("서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.");
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        setError("서버에 연결할 수 없습니다.");
+      } 
+      else {
+        setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }

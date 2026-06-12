@@ -81,14 +81,16 @@ textarea:disabled {
 }
 
 .book-card {
-  transition: box-shadow 0.24s ease,
-              border-color 0.24s ease,
-              background-color 0.24s ease !important;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: transform 0.18s ease,
+              border-color 0.18s ease,
+              background-color 0.18s ease !important;
+  will-change: transform;
 }
 
 .book-card:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 
-              0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  transform: translateY(-5px);
   border-color: #f59e0b !important;
   background-color: #fffaf0 !important;
 }
@@ -117,7 +119,11 @@ textarea:disabled {
 }
 
 button {
-  transition: all 0.2s ease-in-out !important;
+  transition: background-color 0.2s ease-in-out,
+              border-color 0.2s ease-in-out,
+              color 0.2s ease-in-out,
+              box-shadow 0.2s ease-in-out,
+              transform 0.2s ease-in-out !important;
   position: relative;
   overflow: hidden;
 }
@@ -185,4 +191,22 @@ section {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* 맨 아래에 그대로 추가하세요 */
+@keyframes wheatSway {
+  0% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+  50% {
+    transform: scale(1.07) rotate(1deg) translateX(8px);
+  }
+  100% {
+    transform: scale(1.05) rotate(0deg) translateX(0px);
+  }
+}
+
+.animate-wheat-sway {
+  animation: wheatSway 20s ease-in-out infinite;
+  transform-origin: bottom center;
 }

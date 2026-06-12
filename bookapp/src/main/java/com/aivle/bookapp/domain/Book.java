@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.util.List;
 
 //@Table(name = "BOOK2")     // Table 어노테이션 테스트
 @Entity
@@ -33,12 +34,17 @@ public class Book {
     @NotBlank
     private String author;
 
+    @Lob
     @Column(nullable = false)
     @NotBlank
     private String content;
 
     @Lob
     private String coverImageUrl;
+
+    private String genre;
+
+    private String style;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -47,4 +53,6 @@ public class Book {
     private LocalDateTime updatedAt;
 
     private Long userId;
+
+    private String tags;
 }

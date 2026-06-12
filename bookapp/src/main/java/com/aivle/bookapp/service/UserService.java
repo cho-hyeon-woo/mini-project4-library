@@ -9,12 +9,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.aivle.bookapp.exception.DuplicateLoginIdException;
+import com.aivle.bookapp.exception.InvalidPasswordException;
+import com.aivle.bookapp.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -24,7 +28,7 @@ public class UserService {
     @Transactional
     public User register(User user) {
         if (userRepository.existsByLoginId(user.getLoginId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already registered loginId.");
+            throw new DuplicateLoginIdException(user.getLoginId());
         }
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -45,10 +49,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public User login(String loginId, String password) {
         User user = userRepository.findFirstByLoginId(loginId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid loginId or password."));
+                .orElseThrow(() -> new UserNotFoundException(loginId));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid loginId or password.");
+            throw new InvalidPasswordException();
         }
 
         return user;
@@ -58,15 +62,15 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserById(String userId) {
         return userRepository.findById(Long.parseLong(userId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     // 회원 정보 수정
     @Transactional
     public User updateUer(String userId, UserUpdateRequest user) {
         User existing = userRepository.findById(Long.parseLong(userId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
-
+                .orElseThrow(() -> new UserNotFoundException(userId));
+                
         if (user.name() != null && !user.name().isBlank()) {
             existing.setName(user.name());
         }

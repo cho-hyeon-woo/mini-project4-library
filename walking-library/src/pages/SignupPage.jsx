@@ -50,12 +50,19 @@ export default function SignupPage({ onSignupSuccess, onGoLogin }) {
         }),
       });
 
-      if (!res.ok) throw new Error("회원가입에 실패했습니다.");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "회원가입에 실패했습니다.");
+      }
 
       const newUser = await res.json();
       onSignupSuccess(newUser);
     } catch (err) {
-      setError(err.message || "서버에 연결할 수 없습니다. json-server가 실행 중인지 확인해주세요.");
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        setError("서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요. 🔌");
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
