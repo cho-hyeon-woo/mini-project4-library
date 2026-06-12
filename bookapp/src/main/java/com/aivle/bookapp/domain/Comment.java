@@ -9,7 +9,9 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+@EnableJpaAuditing
 @Entity
 @Getter
 @Setter
