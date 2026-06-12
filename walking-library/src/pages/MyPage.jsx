@@ -83,7 +83,7 @@ export default function MyPage({
 
       {!showAccountEdit && (
         <>
-          <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>내가 등록한 도서만 표시됩니다. 수정 및 삭제가 가능합니다.</p>
+          <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>등록한 도서와 북마크한 도서를 확인하고 관리할 수 있습니다.</p>
 
           <BookDetail
             selectedBook={selectedBook}
