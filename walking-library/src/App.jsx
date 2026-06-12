@@ -294,10 +294,10 @@ export default function App() {
                 <section className="recommend-section section-card" style={{ borderLeft: "5px solid #d97706", background: "rgba(255,255,255,0.4)" }}>
                   <h3 className="section-title" style={{ color: "#444", letterSpacing: "-0.03em" }}>이 달의 추천 도서</h3>
                   <div style={{ display: "flex", gap: "25px", alignItems: "center", flexWrap: "wrap" }}>
-                    <div style={{ width: "130px", height: "195px", background: "#f5f5f4", borderRadius: "8px", flexShrink: 0, overflow: "hidden", boxShadow: "4px 8px 20px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                    <div style={{ height: "195px", minWidth: "130px", background: "#f5f5f4", borderRadius: "8px", flexShrink: 0, overflow: "hidden", boxShadow: "4px 8px 20px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.05)" }}>
                       {randomBook.coverImageUrl
-                        ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <div style={{ display: "flex", alignItems: "center", height:"100%", textAlign: "center", padding: "10px", fontSize: "12px", color: "#878681", fontWeight: "600" }}>{randomBook.title}</div>}
+                        ? <img src={randomBook.coverImageUrl} alt="표지" style={{ width: "auto", height: "100%", maxWidth: "100%", objectFit: "contain" }} />
+                        : <div style={{ display: "flex", alignItems: "center", width: "130px", height:"100%", textAlign: "center", padding: "10px", fontSize: "12px", color: "#878681", fontWeight: "600" }}>{randomBook.title}</div>}
                     </div>
                     <div style={{ flex: 1, minWidth: "280px" }}>
                       <h4 style={{ margin: "0 0 6px 0", fontSize: "22px", color: "#1c1917", fontStyle: "italic", fontWeight: "800" }}>{randomBook.title}</h4>

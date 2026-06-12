@@ -101,7 +101,7 @@ export default function BookDetail({
 
                 {selectedBook.tags && (
                   <div style={{ textAlign: "left" }}>
-                    <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#334155" }}>태그</h4>
+                    <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#334155" }}>#태그</h4>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                       {selectedBook.tags.split(",").map((tag, idx) => (
                         <span key={idx} style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "20px", padding: "4px 10px", fontSize: "12px" }}>
@@ -189,7 +189,6 @@ export default function BookDetail({
           </div>
           {selectedBook.tags && (
             <div>
-              <h4 style={{ margin: "0 0 10px 0", color: "#334155", fontSize: "16px" }}>태그</h4>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                 {selectedBook.tags.split(",").map((tag, idx) => (
                   <span key={idx} style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "20px", padding: "4px 10px", fontSize: "12px" }}>
