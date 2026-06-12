@@ -308,7 +308,7 @@ export default function BookDetail({
                       <strong style={{ fontSize: "15px", color: "#1e293b" }}>
                         {formatUserInfo(comment.userName, comment.loginId)}
                       </strong>
-                      <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                      <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px", textAlign: "left" }}>
                         {formatCommentDate(comment.createdAt)}
                       </div>
                     </div>
