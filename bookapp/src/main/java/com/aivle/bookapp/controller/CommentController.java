@@ -5,6 +5,7 @@ import com.aivle.bookapp.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.aivle.bookapp.dto.CommentResponse;
 
 import java.util.List;
 
@@ -26,8 +27,8 @@ public class CommentController {
     }
 
     @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<Comment>> getCommentsByBookId(@PathVariable Long bookId) {
-        List<Comment> comments = commentService.getCommentsByBookId(bookId);
+    public ResponseEntity<List<CommentResponse>> getCommentsByBookId(@PathVariable Long bookId) {
+        List<CommentResponse> comments = commentService.getCommentsByBookId(bookId);
         return ResponseEntity.ok(comments);
     }
 

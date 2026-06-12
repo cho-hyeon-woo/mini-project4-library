@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { BookOpen, FilePenLine, MousePointer2, Pencil, Trash2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { BookOpen, FilePenLine, MousePointer2, Pencil, Trash2, X, Bookmark, Star, Send } from "lucide-react";
+import { toast } from "react-toastify";
 import ImageLightbox from "./ImageLightbox";
 
 export default function BookDetail({
@@ -9,15 +10,136 @@ export default function BookDetail({
   onClose,
   books = [],
   onSelectBook = null,
-  isMyPage = false
+  isMyPage = false,
+  currentUser 
 }) {
   const [lightboxImage, setLightboxImage] = useState(null);
+
+
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
+  useEffect(() => {
+    if (selectedBook && !isMyPage) {
+      fetchBookmarkStatus();
+      fetchAverageRating();
+      fetchComments();
+    }
+  }, [selectedBook, isMyPage]);
+
+
+  const fetchBookmarkStatus = async () => {
+    if (!currentUser) return;
+    try {
+      const res = await fetch(`http://localhost:8080/bookmarks/status?userId=${currentUser.userId}&bookId=${selectedBook.id}`);
+      if (res.ok) {
+        const status = await res.json();
+        setIsBookmarked(status);
+      }
+    } catch (err) {
+      console.error("북마크 상태 로드 실패:", err);
+    }
+  };
+
+  const fetchAverageRating = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/stars/book/${selectedBook.id}/average`);
+      if (res.ok) {
+        const avg = await res.json();
+        setAverageRating(avg);
+      }
+    } catch (err) {
+      console.error("평균 별점 로드 실패:", err);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/comments/book/${selectedBook.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data);
+      }
+    } catch (err) {
+      console.error("댓글 목록 로드 실패:", err);
+    }
+  };
+
+  const handleBookmarkToggle = async () => {
+    if (!currentUser) {
+      toast.warning("로그인 후 이용할 수 있습니다.");
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:8080/bookmarks/bookmarking?userId=${currentUser.userId}&bookId=${selectedBook.id}`, { method: "POST" });
+      if (res.ok) {
+        setIsBookmarked(!isBookmarked);
+        toast.success(!isBookmarked ? "북마크에 추가되었습니다." : "북마크가 취소되었습니다.");
+      }
+    } catch (err) {
+      toast.error("북마크 처리에 실패했습니다.");
+    }
+  };
+
+
+  const handleRateStar = async (score) => {
+    if (!currentUser) {
+      toast.warning("로그인 후 이용할 수 있습니다.");
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:8080/stars/rate?userId=${currentUser.userId}&bookId=${selectedBook.id}&score=${score}`, { method: "POST" });
+      if (res.ok) {
+        toast.success(`${score}점을 주셨습니다!`);
+        fetchAverageRating();
+      }
+    } catch (err) {
+      toast.error("별점 등록에 실패했습니다.");
+    }
+  };
+
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+      toast.warning("로그인 후 이용할 수 있습니다.");
+      return;
+    }
+    if (!newComment.trim()) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/comments/add?userId=${currentUser.userId}&bookId=${selectedBook.id}&content=${encodeURIComponent(newComment)}`, { method: "POST" });
+      if (res.ok) {
+        setNewComment("");
+        fetchComments();
+        toast.success("댓글이 등록되었습니다.");
+      }
+    } catch (err) {
+      toast.error("댓글 등록에 실패했습니다.");
+    }
+  };
+
+  const formatUserInfo = (name, loginId) => {
+    const safeName = name || "사용자";
+    const safeId = loginId || "user";
+    const maskedId = safeId.length > 2 ? safeId.substring(0, 2) + "****" : safeId + "****";
+    return `${safeName}(${maskedId})`;
+  };
+
+  const formatCommentDate = (dateString) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
 
   if (isMyPage) {
     return (
       <>
       <div className="mypage-layout">
-
         {/* 좌측: 도서 목록 */}
         <div className="mypage-sidebar">
           <h4 className="mypage-sidebar-title">
@@ -145,16 +267,25 @@ export default function BookDetail({
     );
   }
 
-  // 홈 화면 상세 보기 (읽기 전용)
   if (!selectedBook) return null;
   const hasNoImage = !selectedBook?.coverImageUrl || selectedBook?.coverImageUrl === "";
 
   return (
-    <section className="book-detail-section">
-      <button className="book-detail-close close-button" onClick={onClose} aria-label="상세 닫기">
-        <X size={18} aria-hidden="true" />
-      </button>
-      <div style={{ display: "flex", gap: "50px", alignItems: "flex-start" }}>
+    <section className="book-detail-section" style={{ paddingBottom: "40px" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "15px", marginBottom: "15px" }}>
+        <button 
+          onClick={handleBookmarkToggle} 
+          style={{ display: "flex", alignItems: "center", gap: "4px", background: "none", border: "none", cursor: "pointer", color: isBookmarked ? "#d97706" : "#94a3b8", fontWeight: "bold" }}
+        >
+          <Bookmark size={22} fill={isBookmarked ? "currentColor" : "none"} />
+          {isBookmarked ? "북마크 됨" : "북마크"}
+        </button>
+        <button className="book-detail-close close-button" onClick={onClose} aria-label="상세 닫기" style={{ position: "static" }}>
+          <X size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: "50px", alignItems: "flex-start", marginBottom: "40px" }}>
         {hasNoImage ? (
           <div style={{ flex: "0 0 350px", width: "350px", height: "520px", background: "#f8fafc", borderRadius: "10px", boxShadow: "0 15px 35px rgba(0,0,0,0.15)", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ textAlign: "center", padding: "20px" }}>
@@ -173,11 +304,29 @@ export default function BookDetail({
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
           <div>
             <span className="genre-badge">{selectedBook.genre || "일반도서"}</span>
-            <h2 style={{ margin: "0 0 10px 0", fontSize: "36px", color: "#1e293b", letterSpacing: "-1px" }}>{selectedBook.title}</h2>
+            <h2 style={{ margin: "5px 0 10px 0", fontSize: "36px", color: "#1e293b", letterSpacing: "-1px" }}>{selectedBook.title}</h2>
             <p style={{ margin: 0, fontSize: "20px", color: "#475569", fontWeight: "500" }}>
               {selectedBook.author} <span style={{ fontSize: "14px", color: "#94a3b8", fontWeight: "normal" }}>저자</span>
             </p>
           </div>
+
+          {/* 🌟 별점 인터랙션 영역 */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px", color: "#fbbf24" }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={28}
+                fill={star <= (hoverRating || averageRating) ? "currentColor" : "none"}
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+                onClick={() => handleRateStar(star)}
+                style={{ cursor: "pointer", transition: "all 0.1s" }}
+              />
+            ))}
+            <span style={{ marginLeft: "8px", color: "#64748b", fontSize: "14px", fontWeight: "bold" }}>
+            </span>
+          </div>
+
           <div style={{ display: "flex", gap: "20px", borderTop: "1px solid #f1f5f9", borderBottom: "1px solid #f1f5f9", padding: "15px 0" }}>
             <div style={{ fontSize: "13px", color: "#64748b" }}>
               <strong>작성일:</strong> {selectedBook.createdAt ? new Date(selectedBook.createdAt).toLocaleDateString() : "미지정"}
@@ -200,6 +349,50 @@ export default function BookDetail({
           )}
         </div>
       </div>
+
+      {/* 🌟 댓글 목록 및 입력 창 영역 */}
+      <div style={{ borderTop: "2px solid #1e293b", paddingTop: "20px" }}>
+        <h3 style={{ fontSize: "22px", margin: "0 0 20px 0", color: "#0f172a" }}>댓글 ({comments.length})</h3>
+        
+        {/* 설계도 반영: 댓글 3개 높이 제한 및 스크롤 바 처리 */}
+        <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "10px", marginBottom: "20px", border: "1px solid #f1f5f9", borderRadius: "8px", padding: "15px" }}>
+          {comments.length === 0 ? (
+            <p style={{ color: "#94a3b8", textAlign: "center", padding: "20px 0", fontSize: "14px" }}>첫 번째 댓글을 남겨보세요!</p>
+          ) : (
+            comments.map((comment) => (
+              <div key={comment.commentId} style={{ borderBottom: "1px solid #e2e8f0", padding: "15px 0", display: "flex", flexDirection: "column", gap: "6px" }}>
+                <strong style={{ fontSize: "15px", color: "#1e293b" }}>
+                  {formatUserInfo(comment.userName, comment.loginId)}
+                </strong>
+                <p style={{ margin: "5px 0", fontSize: "15px", color: "#334155", lineHeight: "1.5", textAlign: "left" }}>{comment.content}</p>
+                <span style={{ fontSize: "12px", color: "#94a3b8", alignSelf: "flex-end" }}>
+                  {formatCommentDate(comment.createdAt)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 댓글 작성창 */}
+        <form onSubmit={handleCommentSubmit} style={{ display: "flex", gap: "10px" }}>
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder={currentUser ? "댓글을 입력하세요..." : "로그인 후 댓글을 작성할 수 있습니다."}
+            disabled={!currentUser}
+            style={{ flex: 1, padding: "12px 15px", border: "1px solid #cbd5e1", borderRadius: "8px", outline: "none" }}
+          />
+          <button 
+            type="submit" 
+            disabled={!currentUser || !newComment.trim()}
+            style={{ padding: "0 20px", background: "#ffa042", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}
+          >
+            <Send size={16} /> 등록
+          </button>
+        </form>
+      </div>
+
       <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />
     </section>
   );
