@@ -297,7 +297,7 @@ export default function BookDetail({
         <div style={{ borderTop: "2px solid #1e293b", paddingTop: "20px" }}>
           <h3 style={{ fontSize: "22px", margin: "0 0 20px 0", color: "#0f172a" }}>댓글 ({comments.length})</h3>
           
-          <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "10px", marginBottom: "20px", border: "1px solid #f1f5f9", borderRadius: "8px", padding: "15px" }}>
+          <div style={{ marginBottom: "20px", border: "1px solid #f1f5f9", borderRadius: "8px", padding: "15px" }}>
             {comments.length === 0 ? (
               <p style={{ color: "#94a3b8", textAlign: "center", padding: "20px 0", fontSize: "14px" }}>첫 번째 댓글을 남겨보세요!</p>
             ) : (
