@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.aivle.bookapp.repository.BookMarkRepository;
+import com.aivle.bookapp.repository.CommentRepository;
+import com.aivle.bookapp.repository.StarScoreRepository;
 
 import java.util.List;
 
@@ -20,6 +23,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final BookMarkRepository bookMarkRepository;
+    private final CommentRepository commentRepository;
+    private final StarScoreRepository starScoreRepository;
 
     @PostMapping
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegisterRequest user) {
@@ -51,8 +57,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        bookMarkRepository.deleteByUserId(userId);
+        commentRepository.deleteByUserId(userId);
+        starScoreRepository.deleteByUserId(userId);
+        userService.deleteUser(String.valueOf(userId));
         return ResponseEntity.noContent().build();
     }
 

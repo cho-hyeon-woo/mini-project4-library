@@ -13,6 +13,7 @@ import java.util.List;
 public interface BookMarkRepository extends JpaRepository<BookMark, Long> {
     Optional<BookMark> findByUserIdAndBookId(Long userId, Long bookId);
     boolean existsByUserIdAndBookId(Long userId, Long bookId); 
+    void deleteByUserId(Long userId);
 
     @Query("SELECT b FROM Book b WHERE b.id IN (SELECT bm.bookId FROM BookMark bm WHERE bm.userId = :userId)")
     List<Book> getBookmarkedBooks(Long userId);
