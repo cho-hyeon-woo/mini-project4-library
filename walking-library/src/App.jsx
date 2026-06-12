@@ -320,7 +320,7 @@ export default function App() {
                       <p style={{ margin: "0 0 15px 0", color: "#78716c", fontSize: "14px" }}>
                         <span style={{ fontWeight: "700", color: "#444" }}>{randomBook.author}</span>
                       </p>
-                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6" }}>
+                      <div style={{ position: "relative", padding: "0 10px", margin: "10px 0 20px 0", color: "#444", fontSize: "14px", lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
                         “ {randomBook.content} ”
                       </div>
                       <span className="detail-link" style={{ cursor: "pointer", color: "#b45309", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #b45309" }} onClick={() => handleOpenDetail(randomBook, "recommend")}>
